@@ -1,0 +1,81 @@
+.certificates-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #212529;
+  }
+  
+  .certificates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .certificate-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+  
+  .certificate-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 1rem;
+  }
+  
+  .certificate-info {
+    margin-bottom: 1.5rem;
+  }
+  
+  .info-item {
+    margin-bottom: 0.5rem;
+    color: #666;
+  }
+  
+  .info-item .label {
+    color: #666;
+  }
+  
+  .info-item .value {
+    color: #212529;
+    font-weight: 500;
+  }
+  
+  .certificate-actions {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .action-button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #fff;
+    color: #6366f1;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .action-button:hover {
+    background: #f8f9fa;
+  }
+  
+  .action-button i {
+    font-size: 1rem;
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    .certificates-grid {
+      grid-template-columns: 1fr;
+    }
+  }

@@ -1,0 +1,54 @@
+body {
+    background-color: #f8e8ff; /* Đặt màu nền cho toàn bộ trang */
+  }
+  
+  .register-course-container {
+    padding: 20px;
+    background-color: #f8e8ff;
+    min-height: 100vh;
+    max-width: 1000px; /* Tăng bề ngang của container */
+    margin: 0 auto;
+  }
+  
+  .course-category {
+    margin: 20px 0;
+  }
+  
+  .filter-buttons {
+    margin-top: 10px;
+  }
+  
+  .course-list {
+    margin-top: 20px;
+  }
+  
+  .course-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+  }
+  
+  .course-info {
+    flex: 1;
+  }
+  
+  .course-info h5 {
+    margin-bottom: 10px;
+  }
+  
+  .prerequisite {
+    color: red;
+    font-weight: 500;
+  }
+  
+  .course-actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  hr {
+    border: none;
+    border-top: 1px solid #000;
+    margin: 10px 0;
+  }

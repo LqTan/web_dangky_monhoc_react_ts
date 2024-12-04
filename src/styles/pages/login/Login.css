@@ -1,0 +1,102 @@
+.login-container {
+    background-color: #f3e8ff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .login-card {
+    width: 400px;
+    border-radius: 15px;
+    padding: 2rem;
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: fadeIn 0.8s ease-out forwards;
+  }
+  
+  .login-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group label {
+    color: #555;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  
+  .input-group {
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .input-group:focus-within {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(111, 66, 193, 0.1);
+  }
+  
+  .input-group .input-group-text {
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-right: none;
+  }
+  
+  .input-group .input-group-text i {
+    color: #6f42c1;
+  }
+  
+  .input-group input {
+    border-left: none;
+  }
+  
+  .input-group input:focus {
+    box-shadow: none;
+    border-color: #ced4da;
+  }
+  
+  .login-button {
+    background-color: #6f42c1;
+    border: none;
+    padding: 0.8rem;
+    border-radius: 8px;
+    color: white;
+    width: 100%;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  .login-button:hover {
+    background-color: #5a32a3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(111, 66, 193, 0.2);
+  }
+  
+  .signup-link {
+    color: #6f42c1;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .signup-link:hover {
+    color: #5a32a3;
+  }

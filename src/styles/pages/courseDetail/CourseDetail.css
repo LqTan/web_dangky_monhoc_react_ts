@@ -1,0 +1,123 @@
+.course-detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .course-hero {
+    margin-bottom: 2rem;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .course-hero img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+  
+  .course-header {
+    margin-bottom: 2rem;
+  }
+  
+  .course-header h1 {
+    font-size: 2rem;
+    color: #212529;
+    margin-bottom: 1rem;
+  }
+  
+  .course-meta {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+  }
+  
+  .duration {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #666;
+  }
+  
+  .price {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .price .original {
+    color: #666;
+    text-decoration: line-through;
+  }
+  
+  .price .sale {
+    color: #4a148c;
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+  
+  .course-description {
+    margin-bottom: 3rem;
+  }
+  
+  .course-description h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #212529;
+  }
+  
+  .description-content {
+    color: #666;
+    line-height: 1.6;
+  }
+  
+  .course-classes h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #212529;
+  }
+  
+  .classes-table-container {
+    overflow-x: auto;
+  }
+  
+  .classes-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  
+  .classes-table th,
+  .classes-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .classes-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #212529;
+  }
+  
+  .register-button {
+    background-color: #4a148c;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .register-button:hover {
+    background-color: #3a1070;
+  }
+  
+  @media (max-width: 768px) {
+    .course-meta {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+  }
