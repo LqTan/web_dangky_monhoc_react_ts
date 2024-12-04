@@ -4,7 +4,7 @@ import '../../../styles/pages/homePage/News.css'
 const News = () => {
   const [selectedCategory, setSelectedCategory] = useState('Thông báo chung')
   const [currentPage, setCurrentPage] = useState(1)
-  const itemPerPage = 5
+  const itemsPerPage = 5 // Số tin tức hiển thị trên mỗi trang
 
   const newsItems = [
     {
@@ -100,13 +100,16 @@ const News = () => {
     'Thông báo nổi bật'
   ]
 
+  // Lọc tin tức theo danh mục
   const filteredNews = newsItems.filter(item => item.category === selectedCategory)
 
-  const totalPages = Math.ceil(filteredNews.length / itemPerPage)
+  // Tính toán số trang
+  const totalPages = Math.ceil(filteredNews.length / itemsPerPage)
 
+  // Lấy tin tức cho trang hiện tại
   const getCurrentPageItems = () => {
-    const startIndex = (currentPage - 1) * itemPerPage
-    const endIndex = startIndex + itemPerPage
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
     return filteredNews.slice(startIndex, endIndex)
   }
 
@@ -168,7 +171,7 @@ const News = () => {
                     onClick={(e) => {
                       e.preventDefault()
                       setSelectedCategory(category)
-                      setCurrentPage(1)
+                      setCurrentPage(1) // Reset về trang 1 khi chuyển category
                     }}
                   >
                     {category}
@@ -198,8 +201,8 @@ const News = () => {
 
           <div className="news-content">
             <div className="news-list">
-              {filteredNews.length > 0 ? (
-                filteredNews.map(item => (
+              {getCurrentPageItems().length > 0 ? (
+                getCurrentPageItems().map(item => (
                   <div key={item.id} className="news-item">
                     {item.isNew && <span className="badge-new">Mới</span>}
                     <h5><a href="#">{item.title}</a></h5>
@@ -214,6 +217,39 @@ const News = () => {
                 </div>
               )}
             </div>
+
+            {filteredNews.length > itemsPerPage && (
+              <div className="pagination-container">
+                <div className="pagination">
+                  <button 
+                    className="page-button"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    <i className="bi bi-chevron-left"></i>
+                  </button>
+
+                  {getPageNumbers().map((page, index) => (
+                    <button
+                      key={index}
+                      className={`page-button ${page === currentPage ? 'active' : ''} ${page === '...' ? 'dots' : ''}`}
+                      onClick={() => typeof page === 'number' && handlePageChange(page)}
+                      disabled={page === '...'}
+                    >
+                      {page}
+                    </button>
+                  ))}
+
+                  <button 
+                    className="page-button"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    <i className="bi bi-chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
