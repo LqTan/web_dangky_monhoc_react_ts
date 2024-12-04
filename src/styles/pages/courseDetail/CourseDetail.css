@@ -74,7 +74,10 @@
   .course-classes h2 {
     font-size: 1.5rem;
     margin-bottom: 1rem;
-    color: #212529;
+    color: #ffffff;
+    background-color: #4a148c;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px 8px 0 0;
   }
   
   .classes-table-container {

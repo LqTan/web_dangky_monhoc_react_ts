@@ -1,37 +1,95 @@
 .navbar {
-    background-color: #1a1b36;
-    padding: 1rem 2rem;
-  }
-  
-  .navbar-brand {
-    color: white;
-    font-weight: bold;
-    text-decoration: none;
-  }
-  
-  .navbar-brand:hover {
-    color: #f3e8ff;
-  }
-  
-  .navbar-links {
-    display: flex;
-    gap: 2rem;
-  }
-  
-  .nav-link {
-    color: white;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s ease;
-  }
-  
-  .nav-link:hover {
-    color: #f3e8ff;
-  }
-  
-  @media (max-width: 768px) {
-    .navbar-links {
-      flex-direction: column;
-      gap: 1rem;
-    }
-  }
+  background-color: #4B0082;
+  padding: 1rem 2rem;
+}
+
+.container-fluid {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.navbar-brand {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.2rem;
+  white-space: nowrap;
+}
+
+.search-container {
+  flex: 1;
+  max-width: 800px; /* Điều chỉnh độ rộng phù hợp */
+  margin: 0 auto; /* Căn giữa search container */
+  padding: 0 1rem;
+  width: 100%;
+  display: flex;
+}
+
+.search-box {
+  position: relative;
+  width: 100%;
+  flex: 1;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  z-index: 1;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.5rem 2.5rem 0.5rem 2rem !important;
+  border-radius: 5px;
+  border: none !important; /* Thêm !important để ghi đè các style khác */
+  outline: none !important;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 0.9rem;
+  -webkit-appearance: none; /* Loại bỏ style mặc định trên Safari */
+  -moz-appearance: none; /* Loại bỏ style mặc định trên Firefox */
+  appearance: none;
+  display: block;
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.search-input:focus {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  white-space: nowrap;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.nav-link i {
+  font-size: 1rem;
+}
+
+.nav-link:hover {
+  opacity: 0.8;
+}
