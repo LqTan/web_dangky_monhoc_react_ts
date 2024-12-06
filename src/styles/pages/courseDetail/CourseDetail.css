@@ -38,6 +38,13 @@
     gap: 0.5rem;
     color: #666;
   }
+
+  .course-category {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #666;
+  }
   
   .price {
     display: flex;
@@ -45,12 +52,18 @@
     gap: 1rem;
   }
   
-  .price .original {
+  /* .price .original {
     color: #666;
     text-decoration: line-through;
-  }
+  } */
   
   .price .sale {
+    color: #4a148c;
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+
+  .price .original {
     color: #4a148c;
     font-weight: 600;
     font-size: 1.2rem;

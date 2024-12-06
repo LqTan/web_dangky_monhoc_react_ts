@@ -1,9 +1,43 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import '../../../styles/pages/studentInfo/tuitionFees/TuitionFees.css'
 import { useNavigate } from 'react-router-dom'
+import { getUnpaidTuitions, TuitionFee } from '../../../services/apis/tuitionAPI'
 
 const TuitionFees = () => {
   const navigate = useNavigate()
+  const [tuitions, setTuitions] = useState<TuitionFee[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const fetchTuitions = async () => {
+      try {
+        const data = await getUnpaidTuitions()
+        setTuitions(data)
+      } catch (err) {
+        setError('Không thể tải thông tin học phí')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTuitions()
+  }, [])
+
+  const formatPrice = (price: string) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(parseFloat(price))
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('vi-VN')
+  }
+
+  if (loading) return <div>Đang tải...</div>
+  if (error) return <div className="error-message">{error}</div>
+
   const handlePayment = () => {
     navigate('/payment-confirmation')
   }
@@ -36,12 +70,11 @@ const TuitionFees = () => {
               <th>Tên môn học</th>
               <th>Số tiền</th>
               <th>Hạn nộp</th>
-              <th>Trạng thái</th>
-              <th>Thao tác</th>
+              <th>Trạng thái</th>              
             </tr>
           </thead>
           <tbody>
-            {tuitionData.map((fee, index) => (
+            {/* {tuitionData.map((fee, index) => (
               <tr key={index}>
                 <td>{fee.courseId}</td>
                 <td>{fee.courseName}</td>
@@ -58,9 +91,25 @@ const TuitionFees = () => {
                   )}
                 </td>
               </tr>
+            ))} */}
+            {tuitions.map((tuition) => (
+              <tr key={tuition.id}>
+                <td>{tuition.class.Course.courseCode}</td>
+                <td>{tuition.class.Course.name}</td>
+                <td>{formatPrice(tuition.amount)}</td>
+                <td>{formatDate(tuition.dueDate)}</td>
+                <td>
+                  <span className={`status-badge ${tuition.paymentDate ? 'paid' : 'unpaid'}`}>
+                    {tuition.paymentDate ? formatDate(tuition.paymentDate) : 'Chưa thanh toán'}
+                  </span>
+                </td>
+              </tr>
             ))}
           </tbody>
         </table>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+        <button className="pay-button" onClick={handlePayment}>THANH TOÁN</button>
       </div>
     </div>
   )

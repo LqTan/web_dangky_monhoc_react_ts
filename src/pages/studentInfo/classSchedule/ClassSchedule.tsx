@@ -1,29 +1,92 @@
-import React from 'react'
-import '../../../styles/pages/studentInfo/classSchedule/ClassSchedule.css'
+import React, { useEffect, useState } from 'react';
+import { fetchMyRegistrations } from '../../../services/apis/classRegistrationAPI';
+import '../../../styles/pages/studentInfo/classSchedule/ClassSchedule.css';
+
+interface RegisteredClass {
+  classCode: string;
+  courseId: string;
+  schedule: number[];
+  startTime: string;
+  endTime: string;
+  room: string;
+  teacher: {
+    email: string;
+  };
+}
+
+interface TimeSlot {
+  time: string;
+  monday: string;
+  tuesday: string;
+  wednesday: string;
+  thursday: string;
+  friday: string;
+  saturday: string;
+  sunday: string;
+}
 
 const ClassSchedule = () => {
-  const schedule = [
-    {
-      time: '18:00 - 20:00',
-      monday: 'Tin học văn phòng (A101)',
-      tuesday: '',
-      wednesday: 'Tin học văn phòng (A101)',
-      thursday: '',
-      friday: '',
-      saturday: 'Tin học văn phòng (A101)',
-      sunday: ''
-    },
-    {
-      time: '20:00 - 21:30',
+  const [registeredClasses, setRegisteredClasses] = useState<RegisteredClass[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadRegisteredClasses = async () => {
+      try {
+        const data = await fetchMyRegistrations();
+        setRegisteredClasses(data.registeredClasses);
+        setLoading(false);
+      } catch (err) {
+        console.log(err);
+        setError('Không thể tải lịch học. Vui lòng thử lại sau.');
+        setLoading(false);
+      }
+    };
+
+    loadRegisteredClasses();
+  }, []);
+
+  const generateScheduleTable = () => {
+    // Tạo mảng các time slot duy nhất từ dữ liệu API
+    const uniqueTimeSlots = Array.from(
+      new Set(
+        registeredClasses.map(cls => `${cls.startTime} - ${cls.endTime}`)
+      )
+    ).sort();
+
+    // Tạo bảng thời khóa biểu với các time slot từ API
+    const table: TimeSlot[] = uniqueTimeSlots.map(timeSlot => ({
+      time: timeSlot,
       monday: '',
-      tuesday: 'Tiếng Anh B1 (B203)',
+      tuesday: '',
       wednesday: '',
-      thursday: 'Tiếng Anh B1 (B203)',
+      thursday: '',
       friday: '',
       saturday: '',
       sunday: ''
-    }
-  ]
+    }));
+
+    // Điền thông tin lớp học vào bảng
+    registeredClasses.forEach((classItem) => {
+      const timeSlot = `${classItem.startTime} - ${classItem.endTime}`;
+      const rowIndex = table.findIndex(row => row.time === timeSlot);
+
+      if (rowIndex !== -1) {
+        classItem.schedule.forEach((day) => {
+          const dayName = day === 8 ? 'sunday' : 
+  ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][day - 2] as keyof TimeSlot;
+table[rowIndex][dayName] = `${classItem.courseId} (${classItem.room})`;
+        });
+      }
+    });
+
+    return table;
+  };
+
+  if (loading) return <div>Đang tải...</div>;
+  if (error) return <div className="error-message">{error}</div>;
+
+  const schedule = generateScheduleTable();
 
   return (
     <div className="profile-card">
@@ -59,7 +122,7 @@ const ClassSchedule = () => {
         </table>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ClassSchedule
+export default ClassSchedule;

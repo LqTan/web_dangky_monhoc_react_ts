@@ -175,31 +175,32 @@
     -webkit-box-orient: vertical;
 }
 
-.course-duration {
+.course-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.course-code {
+    color: #666;
+    font-size: 0.9rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: #666;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
 }
 
 .course-price {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.original-price {
-    color: #666;
-    text-decoration: line-through;
-    font-size: 0.9rem;
-}
-
-.sale-price {
     color: #4a148c;
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.course-price i {
+    font-size: 0.9rem;
 }
 
 /* View all button */

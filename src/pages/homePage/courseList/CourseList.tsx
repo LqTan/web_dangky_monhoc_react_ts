@@ -1,82 +1,66 @@
-import React, { useState, useRef } from 'react'
-import { Link } from 'react-router-dom'
-import '../../../styles/pages/homePage/CourseList.css'
+import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import '../../../styles/pages/homePage/CourseList.css';
+import { Course, fetchCourses } from '../../../services/apis/courseAPI';
+import { fetchCourseCategories } from '../../../services/apis/courseCategoryAPI';
+
+interface CategoryData {
+  id: string;
+  name: string;
+}
 
 const CourseList = () => {
-  const [selectedCategory, setSelectedCategory] = useState('Đồ họa')
-  const categoriesRef = useRef<HTMLDivElement>(null)
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [categories, setCategories] = useState<CategoryData[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const categoriesRef = useRef<HTMLDivElement>(null);
 
-  const categories = [
-    'Đồ họa',
-    'Thiết kế Web - SEO',
-    'Lập trình ứng dụng',
-    'Lập trình Mobile',
-    'Data Science',
-    'Data Analysis',
-    'DevOps Engineer',
-    'Mạng máy tính',
-    'Tin học văn phòng',
-    'Tin học Quốc tế',
-    'Kiểm thử phần mềm',
-    'Khóa học cho thiếu niên'
-  ]
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // Tải danh sách danh mục
+        const categoryData = await fetchCourseCategories();
+        setCategories(categoryData);
+        if (categoryData.length > 0) {
+          setSelectedCategory(categoryData[0].name);
+        }
 
-  const courses = [
-    {
-      id: 1,
-      title: 'Chuyên viên Thiết kế Đồ họa & Web',
-      duration: '12 - 15 tháng',
-      originalPrice: '26.000.000đ',
-      salePrice: '20.000.000đ',
-      image: 'https://placehold.co/600x400/4a148c/white?text=Đồ+họa+&+Web',
-      category: 'Đồ họa',
-      isNew: true
-    },
-    {
-      id: 2,
-      title: 'Chuyên viên Thiết kế Đồ họa & Nội thất',
-      duration: '12 - 15 tháng',
-      originalPrice: '26.000.000đ',
-      salePrice: '20.450.000đ',
-      image: 'https://placehold.co/600x400/4a148c/white?text=Đồ+họa+&+Nội+thất',
-      category: 'Đồ họa'
-    },
-    {
-      id: 3,
-      title: 'Kỹ thuật viên Thiết kế Đồ họa',
-      duration: '3-5 tháng',
-      originalPrice: '7.800.000đ',
-      salePrice: '6.700.000đ',
-      image: 'https://placehold.co/600x400/4a148c/white?text=Thiết+kế+Đồ+họa',
-      category: 'Đồ họa'
-    },
-    {
-      id: 4,
-      title: 'Chuyên viên Digital Painting',
-      duration: '12 - 15 tháng',
-      originalPrice: '29.200.000đ',
-      salePrice: '22.450.000đ',
-      image: 'https://placehold.co/600x400/4a148c/white?text=Digital+Painting',
-      category: 'Đồ họa',
-      isNew: true
-    }
-  ]
+        // Tải danh sách khóa học
+        const courseData = await fetchCourses();
+        setCourses(courseData);
+      } catch (error) {
+        console.error('Failed to load data:', error);
+      }
+    };
+
+    loadData();
+  }, []);
 
   const scroll = (direction: 'left' | 'right') => {
     if (categoriesRef.current) {
-      const scrollAmount = 200
+      const scrollAmount = 200;
       const newScrollLeft = direction === 'left' 
         ? categoriesRef.current.scrollLeft - scrollAmount
-        : categoriesRef.current.scrollLeft + scrollAmount
+        : categoriesRef.current.scrollLeft + scrollAmount;
       
       categoriesRef.current.scrollTo({
         left: newScrollLeft,
         behavior: 'smooth'
-      })
+      });
     }
-  }
+  };
 
-  const filteredCourses = courses.filter(course => course.category === selectedCategory)
+  const filteredCourses = courses.filter(course => {
+    const category = categories.find(cat => cat.id === course.categoryId);
+    return category?.name === selectedCategory;
+  });
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(price);
+  };
 
   return (
     <div className="course-list-container">
@@ -89,13 +73,13 @@ const CourseList = () => {
           <i className="bi bi-chevron-left"></i>
         </button>
         <div className="categories-scroll" ref={categoriesRef}>
-          {categories.map((category, index) => (
+          {categories.map((category) => (
             <button
-              key={index}
-              className={`category-button ${selectedCategory === category ? 'active' : ''}`}
-              onClick={() => setSelectedCategory(category)}
+              key={category.id}
+              className={`category-button ${selectedCategory === category.name ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(category.name)}
             >
-              {category}
+              {category.name}
             </button>
           ))}
         </div>
@@ -109,22 +93,26 @@ const CourseList = () => {
 
       <div className="courses-grid">
         {filteredCourses.map(course => (
-          <div key={course.id} className="course-card">
+          <div key={course.courseCode} className="course-card">
             <div className="course-image">
-              <img src={course.image} alt={course.title} />
-              {course.isNew && <span className="new-badge">NEW</span>}
+              <img 
+                src={course.imageUrl} 
+                alt={course.name} 
+              />
             </div>
             <div className="course-info">
               <h3>
-                <Link to={`/courses/${course.id}`}>{course.title}</Link>
+                <Link to={`/courses/${course.courseCode}`}>{course.name}</Link>
               </h3>
-              <div className="course-duration">
-                <i className="bi bi-clock"></i>
-                <span>{course.duration}</span>
-              </div>
-              <div className="course-price">
-                <span className="original-price">{course.originalPrice}</span>
-                <span className="sale-price">{course.salePrice}</span>
+              <div className="course-details">
+                <div className="course-code">
+                  <i className="bi bi-code-slash"></i>
+                  <span>{course.courseCode}</span>
+                </div>
+                <div className="course-price">
+                  <i className="bi bi-currency-exchange"></i>
+                  <span>{formatPrice(course.price)}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -132,12 +120,12 @@ const CourseList = () => {
       </div>
 
       <div className="view-all-container">
-        <Link to="/courses" className="view-all-button">
+        <Link to="/all-courses" className="view-all-button">
           Xem toàn bộ môn học
         </Link>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CourseList
+export default CourseList;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from '../../../components/header/Header'
 import Sidebar from '../sidebar/Sidebar'
 import '../../../styles/pages/studentInfo/studentProfile/StudentInfo.css'
@@ -8,42 +8,101 @@ import ExamSchedule from '../examSchedule/ExamSchedule'
 import StudyResults from '../studyResults/StudyResults'
 import Certificates from '../certificates/Certificates'
 import TuitionFees from '../tuitionFees/TuitionFees'
+import { UserProfile } from '../../../services/apis/userProfileAPI'
+import { getUserProfile } from '../../../services/apis/userProfileAPI'
 
 const StudentInfo = () => {
   const [selectedComponent, setSelectedComponent] = useState('Thông tin cá nhân')
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const userId = JSON.parse(sessionStorage.getItem('user') || '{}').id
+        if (!userId) {
+          throw new Error('User ID not found')
+        }
+        const data = await getUserProfile(userId)
+        setProfile(data)
+      } catch (err) {
+        setError('Không thể tải thông tin người dùng')
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProfile()
+  }, [])
 
   const renderPersonalInfo = () => {
+    if (loading) {
+      return <div>Đang tải...</div>
+    }
+
+    if (error) {
+      return <div className="error-message">{error}</div>
+    }
+
+    if (!profile) {
+      return <div>Không tìm thấy thông tin người dùng</div>
+    }
+
     return (
       <div className="profile-card">
         <div className="profile-content">
           <div className="left-section">
-            <div className="avatar">S</div>
+            <div className="avatar">
+              {profile.avatar ? (
+                <img src={profile.avatar} alt="avatar" />
+              ) : (
+                <div>{profile.fullName?.charAt(0) || 'S'}</div>
+              )}
+            </div>
             <button className="update-button">Cập Nhật Ảnh</button>
           </div>
           <div className="right-section">
             <div className="form-row">
               <div className="form-group">
                 <label>Họ và tên</label>
-                <input type="text" value="Nguyễn Văn A" readOnly />
+                <input type="text" value={profile.fullName || ''} readOnly />
               </div>
               <div className="form-group">
-                <label>Mã số học viên</label>
-                <input type="text" value="HV001" readOnly />
+                <label>Giới tính</label>
+                <input type="text" value={profile.gender || ''} readOnly />
               </div>
             </div>
             <div className="form-row">
               <div className="form-group">
-                <label>Email</label>
-                <input type="email" value="example@email.com" readOnly />
+                <label>Ngày sinh</label>
+                <input 
+                  type="date" 
+                  value={profile.dateOfBirth ? new Date(profile.dateOfBirth).toISOString().split('T')[0] : ''} 
+                  readOnly 
+                />
               </div>
               <div className="form-group">
-                <label>Số điện thoại</label>
-                <input type="text" value="0123456789" readOnly />
+                <label>CMND/CCCD</label>
+                <input type="text" value={profile.citizenId || ''} readOnly />
               </div>
             </div>
-            <div className="form-group full-width">
-              <label>Địa chỉ</label>
-              <input type="text" value="123 Đường ABC, Quận XYZ, TP.HCM" readOnly />
+            <div className="form-row">
+              <div className="form-group">
+                <label>Nghề nghiệp</label>
+                <input type="text" value={profile.occupation || ''} readOnly />
+              </div>
+              <div className="form-group">
+                <label>Nơi làm việc</label>
+                <input type="text" value={profile.workplace || ''} readOnly />
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Số điện thoại</label>
+                <input type="text" value={profile.phoneNumber || ''} readOnly />
+              </div>
             </div>
           </div>
         </div>
