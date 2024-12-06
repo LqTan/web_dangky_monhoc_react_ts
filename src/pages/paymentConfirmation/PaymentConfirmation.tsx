@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import '../../styles/pages/paymentConfirmation/PaymentConfirmation.css'
-
-import { getUnpaidTuitions, TuitionFee } from '../../services/apis/tuitionAPI'
 import { useNavigate } from 'react-router-dom'
-import { createVNPayPayment } from '../../services/apis/paymentAPI'
+import '../../styles/pages/paymentConfirmation/PaymentConfirmation.css'
+import { getUnpaidTuitions, TuitionFee } from '../../services/apis/tuitionAPI'
+import PayPalButton from '../../components/paypalbutton/PayPalButton'
+import axios from 'axios'
+import SuccessModal from '../../modal/SuccessModal'
 
 interface SelectedTuition extends TuitionFee {
   selected: boolean
@@ -14,45 +15,8 @@ const PaymentConfirmation = () => {
   const [tuitions, setTuitions] = useState<SelectedTuition[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [paymentMethod, setPaymentMethod] = useState('bank')
-
-  const handlePayment = async () => {
-    try {
-      const selectedTuitions = tuitions.filter(tuition => tuition.selected)
-      
-      if (selectedTuitions.length === 0) {
-        alert('Vui lòng chọn ít nhất một học phí để thanh toán')
-        return
-      }
-
-      if (paymentMethod !== 'bank') {
-        alert('Hiện tại chỉ hỗ trợ thanh toán qua VNPay')
-        return
-      }
-
-      const totalAmount = calculateTotal()
-      const tuitionIds = selectedTuitions.map(tuition => tuition.id)
-
-      const response = await createVNPayPayment({
-        amount: totalAmount,
-        tuitionIds: tuitionIds
-      })
-
-      // Chuyển hướng đến trang thanh toán VNPay
-      if (response.paymentUrl) {
-        window.location.href = response.paymentUrl
-      } else {
-        throw new Error('Không nhận được URL thanh toán')
-      }
-    } catch (error) {
-      console.error('Error processing payment:', error)
-      alert('Có lỗi xảy ra khi xử lý thanh toán')
-    }
-  }
-
-  const handleCancel = () => {
-    navigate('/tuition-fees')
-  }
+  const [selectedPayment, setSelectedPayment] = useState<string | null>(null)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
 
   useEffect(() => {
     const fetchTuitions = async () => {
@@ -98,9 +62,41 @@ const PaymentConfirmation = () => {
       .reduce((total, tuition) => total + parseFloat(tuition.amount), 0)
   }
 
+  const handlePayPalSuccess = async (details: any) => {
+    try {
+      const selectedTuitions = tuitions.filter(tuition => tuition.selected)
+      
+      // Gọi API để cập nhật trạng thái học phí
+      const response = await axios.post('http://localhost:3000/api/tuitions/mark-as-paid', {
+        tuitionIds: selectedTuitions.map(tuition => tuition.id)
+      }, {
+        headers: {
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+        }
+      })
+
+      if (response.data) {
+        setShowSuccessModal(true)
+      } else {
+        throw new Error('Cập nhật trạng thái học phí thất bại')
+      }
+    } catch (error) {
+      console.error('Error updating tuition status:', error)
+      alert('Có lỗi xảy ra khi cập nhật trạng thái học phí')
+    }
+  }
+
+  const handleModalClose = () => {
+    setShowSuccessModal(false)
+    navigate('/student-info')
+  }
+
+  const handleCancel = () => {
+    navigate('/tuition-fees')
+  }
+
   if (loading) return <div>Đang tải...</div>
   if (error) return <div className="error-message">{error}</div>
-  
 
   return (
     <div className="payment-container">
@@ -108,7 +104,7 @@ const PaymentConfirmation = () => {
         <h2>Xác nhận thanh toán</h2>
         
         <div className="course-list-section">
-          <h3>Danh sách môn học cần thanh toán</h3>        
+          <h3>Danh sách môn học cần thanh toán</h3>
           {tuitions.map(tuition => (
             <div key={tuition.id} className="course-payment-item">
               <label className="checkbox-container">
@@ -119,12 +115,12 @@ const PaymentConfirmation = () => {
                 />
                 <div className="course-info">
                   <div className="course-code-name">
-                    <div className="course-code">Mã môn: {tuition.class.Course.courseCode}</div>
-                    <div className="course-name">Tên môn học: {tuition.class.Course.name}</div>
+                    <span className="course-code">Mã môn: {tuition.class.Course.courseCode}</span>
+                    <span className="course-name">Tên môn học: {tuition.class.Course.name}</span>
                   </div>
                   <div className="course-price-date">
-                    <div className="course-price">Số tiền: {formatPrice(tuition.amount)}</div>
-                    <div className="due-date">Hạn nộp: {formatDate(tuition.dueDate)}</div>
+                    <span className="course-price">Số tiền: {formatPrice(tuition.amount)}</span>
+                    <span className="due-date">Hạn nộp: {formatDate(tuition.dueDate)}</span>
                   </div>
                 </div>
               </label>
@@ -138,43 +134,22 @@ const PaymentConfirmation = () => {
         </div>
 
         <div className="payment-method-section">
-          <h3>Phương thức thanh toán</h3>
+          <h3>Chọn phương thức thanh toán</h3>
           <div className="payment-methods">
-            <label className="payment-method">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="bank"
-                checked={paymentMethod === 'bank'}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-              />
+            <div 
+              className={`payment-method ${selectedPayment === 'paypal' ? 'active' : ''}`}
+              onClick={() => setSelectedPayment('paypal')}
+            >
+              <i className="bi bi-paypal"></i>
+              <span>PayPal</span>
+            </div>
+            <div 
+              className={`payment-method ${selectedPayment === 'bank' ? 'active' : ''}`}
+              onClick={() => setSelectedPayment('bank')}
+            >
               <i className="bi bi-bank"></i>
-              Chuyển khoản ngân hàng
-            </label>
-
-            <label className="payment-method">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="credit"
-                checked={paymentMethod === 'credit'}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-              />
-              <i className="bi bi-credit-card"></i>
-              Thẻ tín dụng/ghi nợ
-            </label>
-
-            <label className="payment-method">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="ewallet"
-                checked={paymentMethod === 'ewallet'}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-              />
-              <i className="bi bi-wallet2"></i>
-              Ví điện tử
-            </label>
+              <span>Ngân hàng</span>
+            </div>
           </div>
         </div>
 
@@ -182,15 +157,29 @@ const PaymentConfirmation = () => {
           <button className="cancel-button" onClick={handleCancel}>
             Hủy
           </button>
-          <button 
-            className="confirm-button" 
-            onClick={handlePayment}
-            disabled={!tuitions.some(t => t.selected)}
-          >
-            Xác nhận thanh toán
-          </button>
+          {selectedPayment === 'paypal' && (
+            <div className="paypal-button-container">
+              <PayPalButton 
+                amount={calculateTotal()} 
+                onSuccess={handlePayPalSuccess}
+              />
+            </div>
+          )}
+          {selectedPayment === 'bank' && (
+            <button 
+              className="confirm-button"
+              onClick={() => alert('Tính năng đang được phát triển')}
+              disabled={!tuitions.some(t => t.selected)}
+            >
+              Thanh toán qua Ngân hàng
+            </button>
+          )}
         </div>
       </div>
+      <SuccessModal 
+        isOpen={showSuccessModal}
+        onClose={handleModalClose}
+      />
     </div>
   )
 }
