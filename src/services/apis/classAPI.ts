@@ -1,31 +1,20 @@
 import axios from "axios";
 
-const API_URL = 'http://localhost:3000/api/classes';
+const API_URL = 'http://course-management.lndo.site/api/classes';
 
 export interface Class {
-    classCode: string;
-    teacherId: string;
-    courseId: string;
-    schedule: number[];
-    startTime: string;
-    endTime: string;
-    room: string;
-    currentStudents: number;
-    maxStudents: number;
-    startDate: Date;
-    endDate: Date;
-    teacher?: {
-        id: string;
-        email: string;
-        UserProfile?: {
-            id: string;
-            fullName: string;
-        }
-    };
-    Course?: {
-        courseCode: string;
-        name: string;
-    }
+    title: string;
+    field_class_start_time: string;
+    field_class_end_time: string;
+    field_class_open_date: string;
+    field_class_end_date: string;
+    field_class_weekdays: string[];
+    field_current_num_of_participant: boolean | number;
+    field_max_num_of_participant: string;
+    field_room: string;
+    field_course_code: string;
+    field_teacher_fullname: string;
+    // field_class_code?: string;
 }
 
 export const fetchClasses = async () => {
@@ -40,8 +29,8 @@ export const fetchClasses = async () => {
 
 export const fetchClassByCode = async (classCode: string) => {
     try {
-        const response = await axios.get<Class>(`${API_URL}/${classCode}`);
-        return response.data;
+        const response = await axios.get<Class[]>(`${API_URL}/${classCode}`);
+        return response.data[0];
     } catch (error) {
         console.error('Error fetching class:', error);
         throw error;

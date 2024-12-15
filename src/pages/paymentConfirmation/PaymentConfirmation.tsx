@@ -1,49 +1,87 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import '../../styles/pages/paymentConfirmation/PaymentConfirmation.css'
-import { getUnpaidTuitions, TuitionFee } from '../../services/apis/tuitionAPI'
-import PayPalButton from '../../components/paypalbutton/PayPalButton'
-import axios from 'axios'
 import SuccessModal from '../../modal/SuccessModal'
+import { registerWithPayPal, registerWithVNPay } from '../../services/apis/classRegistrationAPI'
 
-interface SelectedTuition extends TuitionFee {
-  selected: boolean
+// Khai báo kiểu cho PayPal global
+declare global {
+  interface Window {
+    paypal?: any;
+  }
+}
+
+interface ClassInfo {
+  title: string
+  field_class_start_time: string
+  field_class_end_time: string
+  field_class_open_date: string
+  field_class_end_date: string
+  field_class_weekdays: string[]
+  field_current_num_of_participant: number
+  field_max_num_of_participant: string
+  field_room: string
+  field_teacher_fullname: string
+}
+
+interface CourseInfo {
+  title: string
+  field_course_code: string
+  field_course_tuition_fee: string
 }
 
 const PaymentConfirmation = () => {
   const navigate = useNavigate()
-  const [tuitions, setTuitions] = useState<SelectedTuition[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const location = useLocation()
+  const { classInfo, courseInfo } = location.state || {}
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+
+  // Kiểm tra nếu không có thông tin khóa học, chuyển về trang chủ
+  if (!classInfo || !courseInfo) {
+    navigate('/')
+    return null
+  }
 
   useEffect(() => {
-    const fetchTuitions = async () => {
-      try {
-        const data = await getUnpaidTuitions()
-        const tuitionsWithSelection = data.map(tuition => ({
-          ...tuition,
-          selected: false
-        }))
-        setTuitions(tuitionsWithSelection)
-      } catch (err) {
-        setError('Không thể tải thông tin học phí')
-      } finally {
-        setLoading(false)
-      }
+    if (selectedPayment === 'paypal' && window.paypal) {
+      window.paypal.Buttons({
+        createOrder: (data: any, actions: any) => {
+          return actions.order.create({
+            purchase_units: [{
+              description: `Đăng ký khóa học ${courseInfo.title}`,
+              amount: {
+                currency_code: 'USD',
+                value: (parseFloat(courseInfo.field_course_tuition_fee) / 23000).toFixed(2)
+              }
+            }]
+          });
+        },
+        onApprove: async (data: any, actions: any) => {
+          try {
+            setIsProcessing(true);
+            const order = await actions.order.capture();
+            
+            const response = await registerWithPayPal(classInfo.title, order.id);
+            if (response.message) {
+              setShowSuccessModal(true);
+            }
+          } catch (error) {
+            console.error('Lỗi thanh toán:', error);
+            alert('Có lỗi xảy ra trong quá trình thanh toán');
+          } finally {
+            setIsProcessing(false);
+          }
+        },
+        onError: (err: any) => {
+          console.error('PayPal Error:', err);
+          alert('Có lỗi xảy ra trong quá trình thanh toán');
+          setIsProcessing(false);
+        }
+      }).render('#paypal-button-container');
     }
-
-    fetchTuitions()
-  }, [])
-
-  const handleCourseSelection = (id: string) => {
-    setTuitions(currentTuitions =>
-      currentTuitions.map(tuition =>
-        tuition.id === id ? { ...tuition, selected: !tuition.selected } : tuition
-      )
-    )
-  }
+  }, [selectedPayment]);
 
   const formatPrice = (price: string) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -56,34 +94,8 @@ const PaymentConfirmation = () => {
     return new Date(dateString).toLocaleDateString('vi-VN')
   }
 
-  const calculateTotal = () => {
-    return tuitions
-      .filter(tuition => tuition.selected)
-      .reduce((total, tuition) => total + parseFloat(tuition.amount), 0)
-  }
-
-  const handlePayPalSuccess = async (details: any) => {
-    try {
-      const selectedTuitions = tuitions.filter(tuition => tuition.selected)
-      
-      // Gọi API để cập nhật trạng thái học phí
-      const response = await axios.post('http://localhost:3000/api/tuitions/mark-as-paid', {
-        tuitionIds: selectedTuitions.map(tuition => tuition.id)
-      }, {
-        headers: {
-          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-        }
-      })
-
-      if (response.data) {
-        setShowSuccessModal(true)
-      } else {
-        throw new Error('Cập nhật trạng thái học phí thất bại')
-      }
-    } catch (error) {
-      console.error('Error updating tuition status:', error)
-      alert('Có lỗi xảy ra khi cập nhật trạng thái học phí')
-    }
+  const formatSchedule = (weekdays: string[]) => {
+    return weekdays.map(day => `Thứ ${day === '8' ? 'CN' : day}`).join(', ')
   }
 
   const handleModalClose = () => {
@@ -92,11 +104,30 @@ const PaymentConfirmation = () => {
   }
 
   const handleCancel = () => {
-    navigate('/tuition-fees')
+    navigate(-1)
   }
 
-  if (loading) return <div>Đang tải...</div>
-  if (error) return <div className="error-message">{error}</div>
+  const handleBankPayment = () => {
+    // Xử lý thanh toán qua ngân hàng
+    alert('Tính năng đang được phát triển')
+  }
+
+  // Thêm xử lý thanh toán qua VNPAY.
+  const handleVNPayPayment = async () => {
+    try {
+      setIsProcessing(true);
+      const response = await registerWithVNPay(classInfo.title);
+      
+      if (response.payment_url) {
+        window.location.href = response.payment_url;
+      }
+    } catch (error) {
+      console.error('Lỗi thanh toán:', error);
+      alert('Có lỗi xảy ra trong quá trình thanh toán');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <div className="payment-container">
@@ -104,33 +135,68 @@ const PaymentConfirmation = () => {
         <h2>Xác nhận thanh toán</h2>
         
         <div className="course-list-section">
-          <h3>Danh sách môn học cần thanh toán</h3>
-          {tuitions.map(tuition => (
-            <div key={tuition.id} className="course-payment-item">
-              <label className="checkbox-container">
-                <input
-                  type="checkbox"
-                  checked={tuition.selected}
-                  onChange={() => handleCourseSelection(tuition.id)}
-                />
-                <div className="course-info">
-                  <div className="course-code-name">
-                    <span className="course-code">Mã môn: {tuition.class.Course.courseCode}</span>
-                    <span className="course-name">Tên môn học: {tuition.class.Course.name}</span>
-                  </div>
-                  <div className="course-price-date">
-                    <span className="course-price">Số tiền: {formatPrice(tuition.amount)}</span>
-                    <span className="due-date">Hạn nộp: {formatDate(tuition.dueDate)}</span>
-                  </div>
+          <h3>Thông tin thanh toán</h3>
+          <div className="course-payment-item">
+            <div className="course-info">
+              <div className="info-row">
+                <div className="info-group">
+                  <span className="label">Mã môn:</span>
+                  <span className="value">{courseInfo.field_course_code}</span>
                 </div>
-              </label>
+                <div className="info-group">
+                  <span className="label">Tên môn học:</span>
+                  <span className="value">{courseInfo.title}</span>
+                </div>
+              </div>
+
+              <div className="info-row">
+                <div className="info-group">
+                  <span className="label">Mã lớp:</span>
+                  <span className="value">{classInfo.title}</span>
+                </div>
+                <div className="info-group">
+                  <span className="label">Giảng viên:</span>
+                  <span className="value">{classInfo.field_teacher_fullname}</span>
+                </div>
+              </div>
+
+              <div className="info-row">
+                <div className="info-group">
+                  <span className="label">Lịch học:</span>
+                  <span className="value">{formatSchedule(classInfo.field_class_weekdays)}</span>
+                </div>
+                <div className="info-group">
+                  <span className="label">Thời gian:</span>
+                  <span className="value">{`${classInfo.field_class_start_time} - ${classInfo.field_class_end_time}`}</span>
+                </div>
+              </div>
+
+              <div className="info-row">
+                <div className="info-group">
+                  <span className="label">Phòng:</span>
+                  <span className="value">{classInfo.field_room}</span>
+                </div>
+                <div className="info-group">
+                  <span className="label">Thời gian:</span>
+                  <span className="value">
+                    {formatDate(classInfo.field_class_open_date)} - {formatDate(classInfo.field_class_end_date)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="info-row">
+                <div className="info-group">
+                  <span className="label">Học phí:</span>
+                  <span className="value price">{formatPrice(courseInfo.field_course_tuition_fee)}</span>
+                </div>
+              </div>
             </div>
-          ))}
+          </div>
         </div>
 
         <div className="total-amount">
           <span>Tổng tiền thanh toán:</span>
-          <span className="amount">{formatPrice(calculateTotal().toString())}</span>
+          <span className="amount">{formatPrice(courseInfo.field_course_tuition_fee)}</span>
         </div>
 
         <div className="payment-method-section">
@@ -148,7 +214,7 @@ const PaymentConfirmation = () => {
               onClick={() => setSelectedPayment('bank')}
             >
               <i className="bi bi-bank"></i>
-              <span>Ngân hàng</span>
+              <span>Ngân hàng (VNPAY)</span>
             </div>
           </div>
         </div>
@@ -157,23 +223,17 @@ const PaymentConfirmation = () => {
           <button className="cancel-button" onClick={handleCancel}>
             Hủy
           </button>
-          {selectedPayment === 'paypal' && (
-            <div className="paypal-button-container">
-              <PayPalButton 
-                amount={calculateTotal()} 
-                onSuccess={handlePayPalSuccess}
-              />
-            </div>
-          )}
-          {selectedPayment === 'bank' && (
+          {selectedPayment === 'paypal' ? (
+            <div id="paypal-button-container"></div>
+          ) : selectedPayment === 'bank' ? (
             <button 
-              className="confirm-button"
-              onClick={() => alert('Tính năng đang được phát triển')}
-              disabled={!tuitions.some(t => t.selected)}
+              className="confirm-button" 
+              onClick={handleVNPayPayment}
+              disabled={isProcessing}
             >
-              Thanh toán qua Ngân hàng
+              {isProcessing ? 'Đang xử lý...' : 'Thanh toán qua VNPAY'}
             </button>
-          )}
+          ) : null}
         </div>
       </div>
       <SuccessModal 

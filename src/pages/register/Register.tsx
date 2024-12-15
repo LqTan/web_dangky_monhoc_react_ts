@@ -1,60 +1,53 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { register } from '../../services/apis/AuthAPI'
+import { register, DrupalRegisterRequest } from '../../services/apis/AuthAPI'
 import '../../styles/pages/register/Register.css'
 
 const Register = () => {
   const navigate = useNavigate()
   const [error, setError] = useState('')
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    name: '',
+    mail: '',
+    pass: '',
     confirmPassword: '',
-    profile: {
-      fullName: '',
-      gender: '',
-      occupation: '',
-      workplace: '',
-      phoneNumber: '',
-      citizenId: ''
-    }
+    field_fullname: '',
+    field_identification_code: '',
+    field_phone_number: '',
+    field_user_career: 2, // Mặc định là 2
+    field_workplace: ''
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    if (name.includes('profile.')) {
-      const profileField = name.split('.')[1]
-      setFormData(prev => ({
-        ...prev,
-        profile: {
-          ...prev.profile,
-          [profileField]: value
-        }
-      }))
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }))
-    }
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
 
-    if (formData.password !== formData.confirmPassword) {
+    if (formData.pass !== formData.confirmPassword) {
       setError('Mật khẩu xác nhận không khớp')
       return
     }
 
     try {
-      await register({
-        email: formData.email,
-        password: formData.password,
-        role: 'student', // Mặc định role là student
-        profile: formData.profile
-      })
+      const registerData: DrupalRegisterRequest = {
+        name: formData.name,
+        mail: formData.mail,
+        pass: formData.pass,
+        field_fullname: formData.field_fullname,
+        field_identification_code: formData.field_identification_code,
+        field_phone_number: formData.field_phone_number,
+        field_user_career: formData.field_user_career,
+        field_workplace: formData.field_workplace
+      }
+
+      await register(registerData)
       navigate('/login')
     } catch (error: any) {
       if (error.response?.data?.message) {
@@ -76,6 +69,24 @@ const Register = () => {
         )}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
+            <label>Tên đăng nhập</label>
+            <div className="input-group">
+              <span className="input-group-text">
+                <i className="bi bi-person"></i>
+              </span>
+              <input
+                type="text"
+                name="name"
+                className="form-control"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Nhập tên đăng nhập"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
             <label>Email</label>
             <div className="input-group">
               <span className="input-group-text">
@@ -83,9 +94,9 @@ const Register = () => {
               </span>
               <input
                 type="email"
-                name="email"
+                name="mail"
                 className="form-control"
-                value={formData.email}
+                value={formData.mail}
                 onChange={handleChange}
                 placeholder="Nhập email"
                 required
@@ -101,83 +112,11 @@ const Register = () => {
               </span>
               <input
                 type="text"
-                name="profile.fullName"
+                name="field_fullname"
                 className="form-control"
-                value={formData.profile.fullName}
+                value={formData.field_fullname}
                 onChange={handleChange}
                 placeholder="Nhập họ và tên"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Giới tính</label>
-            <div className="input-group">
-              <span className="input-group-text">
-                <i className="bi bi-gender-ambiguous"></i>
-              </span>
-              <input
-                type="text"
-                name="profile.gender"
-                className="form-control"
-                value={formData.profile.gender}
-                onChange={handleChange}
-                placeholder="Nhập giới tính"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Nghề nghiệp</label>
-            <div className="input-group">
-              <span className="input-group-text">
-                <i className="bi bi-briefcase"></i>
-              </span>
-              <input
-                type="text"
-                name="profile.occupation"
-                className="form-control"
-                value={formData.profile.occupation}
-                onChange={handleChange}
-                placeholder="Nhập nghề nghiệp"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Nơi làm việc</label>
-            <div className="input-group">
-              <span className="input-group-text">
-                <i className="bi bi-building"></i>
-              </span>
-              <input
-                type="text"
-                name="profile.workplace"
-                className="form-control"
-                value={formData.profile.workplace}
-                onChange={handleChange}
-                placeholder="Nhập nơi làm việc"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Số điện thoại</label>
-            <div className="input-group">
-              <span className="input-group-text">
-                <i className="bi bi-telephone"></i>
-              </span>
-              <input
-                type="text"
-                name="profile.phoneNumber"
-                className="form-control"
-                value={formData.profile.phoneNumber}
-                onChange={handleChange}
-                placeholder="Nhập số điện thoại"
                 required
               />
             </div>
@@ -191,11 +130,47 @@ const Register = () => {
               </span>
               <input
                 type="text"
-                name="profile.citizenId"
+                name="field_identification_code"
                 className="form-control"
-                value={formData.profile.citizenId}
+                value={formData.field_identification_code}
                 onChange={handleChange}
                 placeholder="Nhập CMND/CCCD"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Số điện thoại</label>
+            <div className="input-group">
+              <span className="input-group-text">
+                <i className="bi bi-telephone"></i>
+              </span>
+              <input
+                type="text"
+                name="field_phone_number"
+                className="form-control"
+                value={formData.field_phone_number}
+                onChange={handleChange}
+                placeholder="Nhập số điện thoại"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Nơi làm việc</label>
+            <div className="input-group">
+              <span className="input-group-text">
+                <i className="bi bi-building"></i>
+              </span>
+              <input
+                type="text"
+                name="field_workplace"
+                className="form-control"
+                value={formData.field_workplace}
+                onChange={handleChange}
+                placeholder="Nhập nơi làm việc"
                 required
               />
             </div>
@@ -209,9 +184,9 @@ const Register = () => {
               </span>
               <input
                 type="password"
-                name="password"
+                name="pass"
                 className="form-control"
-                value={formData.password}
+                value={formData.pass}
                 onChange={handleChange}
                 placeholder="Nhập mật khẩu"
                 required

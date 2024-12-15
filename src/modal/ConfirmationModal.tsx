@@ -5,11 +5,12 @@ interface ConfirmationModalProps {
   isOpen: boolean
   title: string
   message: string
+  className?: string
   onConfirm: () => void
   onCancel: () => void
 }
 
-const ConfirmationModal = ({ isOpen, title, message, onConfirm, onCancel }: ConfirmationModalProps) => {
+const ConfirmationModal = ({ isOpen, title, message, className, onConfirm, onCancel }: ConfirmationModalProps) => {
   if (!isOpen) return null
 
   return (
@@ -21,6 +22,7 @@ const ConfirmationModal = ({ isOpen, title, message, onConfirm, onCancel }: Conf
         </div>
         <div className="modal-content">
           <p>{message}</p>
+          {className && <p>Mã lớp: {className}</p>}
         </div>
         <div className="modal-actions">
           <button className="cancel-button" onClick={onCancel}>

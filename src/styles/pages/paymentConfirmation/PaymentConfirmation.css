@@ -21,39 +21,51 @@
 }
 
 .course-payment-item {
+  background-color: #fff;
   border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-  padding: 1rem;
-}
-
-.checkbox-container {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  cursor: pointer;
-}
-
-.checkbox-container input[type="checkbox"] {
-  margin-top: 4px;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .course-info {
   flex: 1;
 }
 
-.course-code-name,
-.course-price-date {
+/* Thêm style mới cho cấu trúc thông tin */
+.info-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.course-code,
-.course-name,
-.course-price,
-.due-date {
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-group {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+}
+
+.label {
   color: #666;
+  min-width: 120px;
+  font-weight: 500;
+}
+
+.value {
+  color: #333;
+  flex: 1;
+}
+
+.value.price {
+  color: #4a148c;
+  font-weight: 600;
+  font-size: 1.1rem;
 }
 
 .total-amount {
@@ -144,20 +156,23 @@
   cursor: not-allowed;
 }
 
-.paypal-button-container {
-  min-width: 200px;
-}
-
 @media (max-width: 768px) {
   .payment-container {
     margin: 1rem;
     padding: 1rem;
   }
 
-  .course-code-name,
-  .course-price-date {
+  .info-row {
     flex-direction: column;
     gap: 0.5rem;
+  }
+
+  .info-group {
+    width: 100%;
+  }
+
+  .label {
+    min-width: 100px;
   }
 
   .payment-methods {

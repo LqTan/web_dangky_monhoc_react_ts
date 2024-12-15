@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Login from "../pages/login/Login";
 import Register from "../pages/register/Register";
 import HomePage from "../pages/homePage/HomePage";
@@ -13,9 +13,21 @@ import MainLayout from "../layout/MainLayout";
 import AllCourses from "../pages/allCourses/AllCourses";
 import { useAuth } from "../context/AuthContext";
 import PaymentResult from "../pages/paymentConfirmation/PaymentResult";
+import NewsDetail from "../pages/homePage/news/NewsDetail";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
+  
+  // Đợi cho đến khi kiểm tra auth xong
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  // Cho phép truy cập payment-result mà không cần auth
+  if (location.pathname === '/payment-result') {
+    return <>{children}</>;
+  }
   
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
@@ -46,6 +58,7 @@ const AppRoutes = () => {
         <Route path="/payment-confirmation" element={<ProtectedRoute><MainLayout><PaymentConfirmation /></MainLayout></ProtectedRoute>} />
         <Route path="/all-courses" element={<ProtectedRoute><MainLayout><AllCourses /></MainLayout></ProtectedRoute>} />
         <Route path="/payment-result" element={<ProtectedRoute><MainLayout><PaymentResult /></MainLayout></ProtectedRoute>} />
+        <Route path="/news/:tid" element={<ProtectedRoute><MainLayout><NewsDetail /></MainLayout></ProtectedRoute>} />
     </Routes>
   );
 };

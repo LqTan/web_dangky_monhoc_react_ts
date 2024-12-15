@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import '../../styles/pages/login/Login.css';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -15,12 +15,13 @@ const Login = () => {
     e.preventDefault();
     setError('');
     try {
-      const response = await login(email, password);
-      authLogin(response.token, response.user);
+      const response = await login(username, password);
+      console.log(response);
+      authLogin(response.user);
       navigate('/');
     } catch (error: any) {
-      if (error.response?.status === 401) {
-        setError('Email hoặc mật khẩu không chính xác');
+      if (error.response?.status === 400 || error.response?.status === 403) {
+        setError('Tên đăng nhập hoặc mật khẩu không chính xác');
       } else {
         setError('Có lỗi xảy ra. Vui lòng thử lại sau');
       }
@@ -30,8 +31,8 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h2 className="text-center mb-4">Welcome Back</h2>
-        <p className="text-center text-muted">Sign in to your account</p>
+        <h2 className="text-center mb-4">Chào mừng trở lại</h2>
+        <p className="text-center text-muted">Đăng nhập vào tài khoản của bạn</p>
         {error && (
           <div className="alert alert-danger text-center" role="alert">
             {error}
@@ -39,23 +40,24 @@ const Login = () => {
         )}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="email">Email address</label>
+            <label htmlFor="username">Tên đăng nhập</label>
             <div className="input-group">
               <span className="input-group-text">
-                <i className="bi bi-envelope"></i>
+                <i className="bi bi-person"></i>
               </span>
               <input
-                type="email"
+                type="text"
                 className="form-control"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Nhập tên đăng nhập"
+                required
               />
             </div>
           </div>
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">Mật khẩu</label>
             <div className="input-group">
               <span className="input-group-text">
                 <i className="bi bi-lock"></i>
@@ -66,18 +68,19 @@ const Login = () => {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
+                placeholder="Nhập mật khẩu"
+                required
               />
             </div>
           </div>
           <button type="submit" className="login-button">
-            Sign In
+            Đăng nhập
           </button>
         </form>
         <p className="text-center mt-3">
-          Don't have an account?{' '}
+          Chưa có tài khoản?{' '}
           <a href="/register" className="signup-link">
-            Sign up
+            Đăng ký
           </a>
         </p>
       </div>

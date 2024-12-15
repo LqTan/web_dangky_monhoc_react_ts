@@ -1,129 +1,84 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import axios from 'axios'
 import '../../../styles/pages/homePage/News.css'
 
+interface NewsType {
+  tid: string
+  name: string
+}
+
+interface NewsItem {
+  nid: string
+  title: string
+  body: string
+  field_file_upload: string
+  field_term_name: string
+  vid: string
+}
+
 const News = () => {
-  const [selectedCategory, setSelectedCategory] = useState('Thông báo chung')
+  const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 5 // Số tin tức hiển thị trên mỗi trang
+  const [categories, setCategories] = useState<NewsType[]>([])
+  const [newsItems, setNewsItems] = useState<NewsItem[]>([])
+  const itemsPerPage = 5
 
-  const newsItems = [
-    {
-      id: 1,
-      title: 'THÔNG BÁO VỀ THỜI GIAN NỘP HỌC PHÍ NĂM HỌC 2024-2025',
-      publishDate: '26/11/2024',
-      updateDate: '26/11/2024',
-      isNew: true,
-      category: 'Thông báo từ phòng KHTC'
-    },
-    {
-      id: 2,
-      title: 'Thông báo về việc cung cấp thông tin để hoàn trả lệ phí đăng ký kiểm tra ngoại ngữ đầu vào năm 2024',
-      publishDate: '15/11/2024',
-      updateDate: '26/11/2024',
-      isNew: true,
-      category: 'Thông báo chung'
-    },
-    {
-      id: 3,
-      title: 'Thông báo về việc khảo sát ý kiến sinh viên về chất lượng giảng dạy',
-      publishDate: '14/11/2024',
-      updateDate: '14/11/2024',
-      isNew: false,
-      category: 'Khảo sát lấy ý kiến người học'
-    },
-    {
-      id: 4,
-      title: 'Thông báo lịch thi cuối kỳ học kỳ 1 năm học 2024-2025',
-      publishDate: '13/11/2024',
-      updateDate: '13/11/2024',
-      isNew: false,
-      category: 'Khảo thí'
-    },
-    {
-      id: 5,
-      title: 'Thông báo về việc nghỉ Tết Nguyên đán 2025',
-      publishDate: '10/11/2024',
-      updateDate: '10/11/2024',
-      isNew: true,
-      category: 'Thông báo chung'
-    },
-    {
-      id: 6,
-      title: 'Thông báo về việc đăng ký thi chứng chỉ ngoại ngữ đợt 1 năm 2025',
-      publishDate: '09/11/2024',
-      updateDate: '09/11/2024',
-      isNew: false,
-      category: 'Thông báo chung'
-    },
-    {
-      id: 7,
-      title: 'Thông báo về việc nghỉ Tết Nguyên đán 2025',
-      publishDate: '10/11/2024',
-      updateDate: '10/11/2024',
-      isNew: true,
-      category: 'Thông báo chung'
-    },
-    {
-      id: 8,
-      title: 'Thông báo về việc đăng ký thi chứng chỉ ngoại ngữ đợt 1 năm 2025',
-      publishDate: '09/11/2024',
-      updateDate: '09/11/2024',
-      isNew: false,
-      category: 'Thông báo chung'
-    },
-    {
-      id: 9,
-      title: 'Thông báo về việc nghỉ Tết Nguyên đán 2025',
-      publishDate: '10/11/2024',
-      updateDate: '10/11/2024',
-      isNew: true,
-      category: 'Thông báo chung'
-    },
-    {
-      id: 10,
-      title: 'Thông báo về việc đăng ký thi chứng chỉ ngoại ngữ đợt 1 năm 2025',
-      publishDate: '09/11/2024',
-      updateDate: '09/11/2024',
-      isNew: false,
-      category: 'Thông báo chung'
-    },
-  ]
+  // Fetch danh mục tin tức
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('http://course-management.lndo.site/api/news-types')
+        setCategories(response.data)
+        if (response.data.length > 0) {
+          setSelectedCategory(response.data[0].tid)
+        }
+      } catch (error) {
+        console.error('Lỗi khi tải danh mục:', error)
+      }
+    }
+    fetchCategories()
+  }, [])
 
-  const categories = [
-    'Thông báo chung',
-    'Thông báo từ phòng KHTC',
-    'Khảo sát lấy ý kiến người học',
-    'Hành chính',
-    'Đào tạo',
-    'Khảo thí',
-    'Công tác SV',
-    'Thông báo nổi bật'
-  ]
-
-  // Lọc tin tức theo danh mục
-  const filteredNews = newsItems.filter(item => item.category === selectedCategory)
+  // Fetch tin tức theo danh mục
+  useEffect(() => {
+    const fetchNews = async () => {
+      if (!selectedCategory) return
+      try {
+        const response = await axios.get(`http://course-management.lndo.site/api/news`)
+        // Lọc tin tức theo danh mục được chọn
+        const filteredNews = response.data.filter(
+          (item: NewsItem) => item.field_term_name === categories.find(cat => cat.tid === selectedCategory)?.name
+        )
+        setNewsItems(filteredNews)
+        setCurrentPage(1)
+      } catch (error) {
+        console.error('Lỗi khi tải tin tức:', error)
+      }
+    }
+    fetchNews()
+  }, [selectedCategory, categories])
 
   // Tính toán số trang
-  const totalPages = Math.ceil(filteredNews.length / itemsPerPage)
+  const totalPages = Math.ceil(newsItems.length / itemsPerPage)
 
   // Lấy tin tức cho trang hiện tại
   const getCurrentPageItems = () => {
     const startIndex = (currentPage - 1) * itemsPerPage
     const endIndex = startIndex + itemsPerPage
-    return filteredNews.slice(startIndex, endIndex)
+    return newsItems.slice(startIndex, endIndex)
   }
 
   // Xử lý chuyển trang
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
-    // Cuộn lên đầu danh sách tin tức
     document.querySelector('.news-content')?.scrollTo(0, 0)
   }
 
   // Tạo mảng số trang để hiển thị
   const getPageNumbers = () => {
     const pageNumbers = []
-    const maxVisiblePages = 5 // Số trang hiển thị tối đa trong pagination
+    const maxVisiblePages = 5
 
     if (totalPages <= maxVisiblePages) {
       for (let i = 1; i <= totalPages; i++) {
@@ -163,28 +118,27 @@ const News = () => {
           <div className="news-sidebar">
             <h5>Tin tức</h5>
             <ul className="category-list">
-              {categories.map((category, index) => (
-                <li key={index}>
+              {categories.map((category) => (
+                <li key={category.tid}>
                   <a 
                     href="#" 
-                    className={selectedCategory === category ? 'active' : ''}
+                    className={selectedCategory === category.tid ? 'active' : ''}
                     onClick={(e) => {
                       e.preventDefault()
-                      setSelectedCategory(category)
-                      setCurrentPage(1) // Reset về trang 1 khi chuyển category
+                      setSelectedCategory(category.tid)
                     }}
                   >
-                    {category}
+                    {category.name}
                   </a>
                 </li>
               ))}
             </ul>
           </div>
         </div>
-
+  
         <div className="col-md-9">
           <div className="news-header">
-            <h2>{selectedCategory}</h2>
+            <h2>{categories.find(cat => cat.tid === selectedCategory)?.name}</h2>
             <div className="search-box">
               <div className="input-group">
                 <input 
@@ -198,16 +152,17 @@ const News = () => {
               </div>
             </div>
           </div>
-
+  
           <div className="news-content">
             <div className="news-list">
               {getCurrentPageItems().length > 0 ? (
-                getCurrentPageItems().map(item => (
-                  <div key={item.id} className="news-item">
-                    {item.isNew && <span className="badge-new">Mới</span>}
-                    <h5><a href="#">{item.title}</a></h5>
+                getCurrentPageItems().map((item) => (
+                  <div key={item.nid} className="news-item">
+                    <h5>
+                      <Link to={`/news/${item.nid}`}>{item.title}</Link>
+                    </h5>
                     <div className="news-meta">
-                      Ngày đăng tin {item.publishDate} • Ngày cập nhật {item.updateDate}
+                      Danh mục: {item.field_term_name}
                     </div>
                   </div>
                 ))
@@ -217,8 +172,8 @@ const News = () => {
                 </div>
               )}
             </div>
-
-            {filteredNews.length > itemsPerPage && (
+  
+            {newsItems.length > itemsPerPage && (
               <div className="pagination-container">
                 <div className="pagination">
                   <button 
@@ -228,7 +183,7 @@ const News = () => {
                   >
                     <i className="bi bi-chevron-left"></i>
                   </button>
-
+  
                   {getPageNumbers().map((page, index) => (
                     <button
                       key={index}
@@ -239,7 +194,7 @@ const News = () => {
                       {page}
                     </button>
                   ))}
-
+  
                   <button 
                     className="page-button"
                     onClick={() => handlePageChange(currentPage + 1)}

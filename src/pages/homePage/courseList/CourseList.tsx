@@ -5,7 +5,7 @@ import { Course, fetchCourses } from '../../../services/apis/courseAPI';
 import { fetchCourseCategories } from '../../../services/apis/courseCategoryAPI';
 
 interface CategoryData {
-  id: string;
+  tid: string;
   name: string;
 }
 
@@ -51,16 +51,20 @@ const CourseList = () => {
   };
 
   const filteredCourses = courses.filter(course => {
-    const category = categories.find(cat => cat.id === course.categoryId);
-    return category?.name === selectedCategory;
+    return course.training_program_tid === categories.find(cat => cat.name === selectedCategory)?.tid;
   });
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (price: string) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND'
-    }).format(price);
+    }).format(parseFloat(price));
   };
+
+  const getImageUrl = (imagePath: string) => {
+    if (!imagePath) return '';
+    return imagePath.replace('public://', 'http://course-management.lndo.site/sites/default/files/');
+  }
 
   return (
     <div className="course-list-container">
@@ -75,7 +79,7 @@ const CourseList = () => {
         <div className="categories-scroll" ref={categoriesRef}>
           {categories.map((category) => (
             <button
-              key={category.id}
+              key={category.tid}
               className={`category-button ${selectedCategory === category.name ? 'active' : ''}`}
               onClick={() => setSelectedCategory(category.name)}
             >
@@ -93,25 +97,25 @@ const CourseList = () => {
 
       <div className="courses-grid">
         {filteredCourses.map(course => (
-          <div key={course.courseCode} className="course-card">
+          <div key={course.field_course_code} className="course-card">
             <div className="course-image">
               <img 
-                src={course.imageUrl} 
-                alt={course.name} 
+                src={getImageUrl(course.field_course_thumbnail)} 
+                alt={course.title} 
               />
             </div>
             <div className="course-info">
               <h3>
-                <Link to={`/courses/${course.courseCode}`}>{course.name}</Link>
+                <Link to={`/courses/${course.field_course_code}`}>{course.title}</Link>
               </h3>
               <div className="course-details">
                 <div className="course-code">
                   <i className="bi bi-code-slash"></i>
-                  <span>{course.courseCode}</span>
+                  <span>{course.field_course_code}</span>
                 </div>
                 <div className="course-price">
                   <i className="bi bi-currency-exchange"></i>
-                  <span>{formatPrice(course.price)}</span>
+                  <span>{formatPrice(course.field_course_tuition_fee)}</span>
                 </div>
               </div>
             </div>

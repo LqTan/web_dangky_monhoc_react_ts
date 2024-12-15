@@ -1,18 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { fetchMyRegistrations } from '../../../services/apis/classRegistrationAPI';
+import { fetchRegisteredClasses, RegisteredClassInfo } from '../../../services/apis/classRegistrationAPI';
 import '../../../styles/pages/studentInfo/classSchedule/ClassSchedule.css';
-
-interface RegisteredClass {
-  classCode: string;
-  courseId: string;
-  schedule: number[];
-  startTime: string;
-  endTime: string;
-  room: string;
-  teacher: {
-    email: string;
-  };
-}
 
 interface TimeSlot {
   time: string;
@@ -26,18 +14,19 @@ interface TimeSlot {
 }
 
 const ClassSchedule = () => {
-  const [registeredClasses, setRegisteredClasses] = useState<RegisteredClass[]>([]);
+  const [registeredClasses, setRegisteredClasses] = useState<RegisteredClassInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadRegisteredClasses = async () => {
       try {
-        const data = await fetchMyRegistrations();
-        setRegisteredClasses(data.registeredClasses);
+        const userId = JSON.parse(localStorage.getItem('user') || '{}').id;      
+        const data = await fetchRegisteredClasses(userId);
+        setRegisteredClasses(data);
         setLoading(false);
       } catch (err) {
-        console.log(err);
+        console.error(err);
         setError('Không thể tải lịch học. Vui lòng thử lại sau.');
         setLoading(false);
       }
@@ -50,11 +39,12 @@ const ClassSchedule = () => {
     // Tạo mảng các time slot duy nhất từ dữ liệu API
     const uniqueTimeSlots = Array.from(
       new Set(
-        registeredClasses.map(cls => `${cls.startTime} - ${cls.endTime}`)
+        registeredClasses.map(cls => 
+          `${cls.field_class_start_time} - ${cls.field_class_end_time}`)
       )
     ).sort();
 
-    // Tạo bảng thời khóa biểu với các time slot từ API
+    // Tạo bảng thời khóa biểu
     const table: TimeSlot[] = uniqueTimeSlots.map(timeSlot => ({
       time: timeSlot,
       monday: '',
@@ -68,14 +58,25 @@ const ClassSchedule = () => {
 
     // Điền thông tin lớp học vào bảng
     registeredClasses.forEach((classItem) => {
-      const timeSlot = `${classItem.startTime} - ${classItem.endTime}`;
+      const timeSlot = `${classItem.field_class_start_time} - ${classItem.field_class_end_time}`;
       const rowIndex = table.findIndex(row => row.time === timeSlot);
 
       if (rowIndex !== -1) {
-        classItem.schedule.forEach((day) => {
-          const dayName = day === 8 ? 'sunday' : 
-  ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][day - 2] as keyof TimeSlot;
-table[rowIndex][dayName] = `${classItem.courseId} (${classItem.room})`;
+        classItem.field_class_weekdays.forEach((day) => {
+          const dayMap: { [key: string]: keyof TimeSlot } = {
+            '2': 'monday',
+            '3': 'tuesday',
+            '4': 'wednesday',
+            '5': 'thursday',
+            '6': 'friday',
+            '7': 'saturday',
+            '8': 'sunday'
+          };
+          
+          const dayName = dayMap[day];
+          if (dayName) {
+            table[rowIndex][dayName] = `${classItem.field_class_code} (${classItem.field_room})`;
+          }
         });
       }
     });

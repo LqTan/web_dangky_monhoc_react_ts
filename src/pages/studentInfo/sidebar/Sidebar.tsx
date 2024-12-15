@@ -1,7 +1,12 @@
 import React from 'react'
 import '../../../styles/pages/studentInfo/sidebar/Sidebar.css'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../../context/AuthContext';
 
 const Sidebar = ({ onSelect }) => {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
   const menuItems = [
     { icon: 'bi bi-person', label: 'Thông tin cá nhân' },
     { icon: 'bi bi-clock-history', label: 'Lịch sử đăng ký' },
@@ -13,6 +18,11 @@ const Sidebar = ({ onSelect }) => {
     { icon: 'bi bi-wallet2', label: 'Học phí' },
   ]
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  }
+
   return (
     <div className="sidebar">
       <ul>
@@ -22,6 +32,11 @@ const Sidebar = ({ onSelect }) => {
             <span>{item.label}</span>
           </li>
         ))}
+        {/* Thêm nút đăng xuất */}
+        <li className="logout-item" onClick={handleLogout}>
+          <i className="bi bi-box-arrow-right"></i>
+          <span>Đăng xuất</span>
+        </li>
       </ul>
     </div>
   )
