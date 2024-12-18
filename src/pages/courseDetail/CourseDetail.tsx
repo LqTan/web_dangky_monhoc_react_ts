@@ -7,7 +7,7 @@ import { Course, fetchCourseByCode } from '../../services/apis/courseAPI'
 import { fetchCourseCategories } from '../../services/apis/courseCategoryAPI'
 import { Class, fetchClasses } from '../../services/apis/classAPI'
 import { useAuth } from '../../context/AuthContext'
-import { checkCourseRegistration, registerClass } from '../../services/apis/classRegistrationAPI'
+import { checkCourseRegistration } from '../../services/apis/classRegistrationAPI'
 
 const CourseDetail = () => {
   const { id } = useParams()  

@@ -3,7 +3,11 @@ import '../../../styles/pages/studentInfo/sidebar/Sidebar.css'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../context/AuthContext';
 
-const Sidebar = ({ onSelect }) => {
+interface SidebarProps {
+  onSelect: (selected: string) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onSelect }) => {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
