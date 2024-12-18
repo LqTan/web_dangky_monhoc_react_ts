@@ -107,7 +107,7 @@ const CourseDetail = () => {
 
   const handleSuccessClose = () => {
     setShowSuccessModal(false)
-    navigate('/')
+    navigate('/home-page')
   }
 
   const formatPrice = (price: number) => {

@@ -41,7 +41,7 @@ const PaymentConfirmation = () => {
 
   // Kiểm tra nếu không có thông tin khóa học, chuyển về trang chủ
   if (!classInfo || !courseInfo) {
-    navigate('/')
+    navigate('/home-page')
     return null
   }
 

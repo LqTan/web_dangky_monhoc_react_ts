@@ -23,7 +23,7 @@ const Login = () => {
       const response = await login(username, password);
       console.log(response);
       authLogin(response.user);
-      navigate('/');
+      navigate('/home-page');
     } catch (error: any) {
       if (error.response?.status === 400 || error.response?.status === 403) {
         setError('Tên đăng nhập hoặc mật khẩu không chính xác');

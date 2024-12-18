@@ -31,7 +31,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   }
   
   if (!isAuthenticated) {
-    return <Navigate to="/landing-page" />;
+    return <Navigate to="/" />;
   }
 
   return <>{children}</>;
@@ -41,7 +41,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
   
   if (isAuthenticated) {
-    return <Navigate to="/" />;
+    return <Navigate to="/home-page" />;
   }
 
   return <>{children}</>;
@@ -52,7 +52,7 @@ const AppRoutes = () => {
     <Routes>
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
         <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-        <Route path="/" element={<ProtectedRoute><MainLayout><HomePage /></MainLayout></ProtectedRoute>} />
+        <Route path="/home-page" element={<ProtectedRoute><MainLayout><HomePage /></MainLayout></ProtectedRoute>} />
         <Route path="/student-info" element={<ProtectedRoute><MainLayout><StudentInfo /></MainLayout></ProtectedRoute>} />
         <Route path="/register-course" element={<ProtectedRoute><MainLayout><RegisterCourse /></MainLayout></ProtectedRoute>} />
         <Route path="/courses/:id" element={<ProtectedRoute><MainLayout><CourseDetail /></MainLayout></ProtectedRoute>} />
@@ -60,7 +60,7 @@ const AppRoutes = () => {
         <Route path="/all-courses" element={<ProtectedRoute><MainLayout><AllCourses /></MainLayout></ProtectedRoute>} />
         <Route path="/payment-result" element={<ProtectedRoute><MainLayout><PaymentResult /></MainLayout></ProtectedRoute>} />
         <Route path="/news/:tid" element={<ProtectedRoute><MainLayout><NewsDetail /></MainLayout></ProtectedRoute>} />
-        <Route path="/landing-page" element={<PublicRoute><LandingPage /></PublicRoute>} />
+        <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
     </Routes>
   );
 };
