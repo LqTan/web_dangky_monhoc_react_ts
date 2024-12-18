@@ -4,18 +4,19 @@ interface PayPalButtonProps {
   amount: number
   onSuccess: (details: any) => void
 }
+
 declare global {
-    interface Window {
-        paypal: any;
-    }
+  interface Window {
+      paypal?: any;
+  }
 }
 
-declare const paypal: any
+// declare const paypal: any
 
 const PayPalButton = ({ amount, onSuccess }: PayPalButtonProps) => {
   useEffect(() => {
     if (window.paypal) {
-      paypal.Buttons({
+      window.paypal.Buttons({
         // Chuyển đổi VND sang USD (tạm tính 1 USD = 23000 VND)
         createOrder: (data: any, actions: any) => {
           return actions.order.create({
