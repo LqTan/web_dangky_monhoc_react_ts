@@ -11,6 +11,7 @@ interface NewsType {
 interface NewsItem {
   nid: string
   title: string
+  changed: string
   body: string
   field_file_upload: string
   field_term_name: string
@@ -22,6 +23,8 @@ const News = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [categories, setCategories] = useState<NewsType[]>([])
   const [newsItems, setNewsItems] = useState<NewsItem[]>([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const [searchResults, setSearchResults] = useState<NewsItem[]>([])
   const itemsPerPage = 5
 
   // Fetch danh mục tin tức
@@ -60,13 +63,13 @@ const News = () => {
   }, [selectedCategory, categories])
 
   // Tính toán số trang
-  const totalPages = Math.ceil(newsItems.length / itemsPerPage)
+  const totalPages = Math.ceil(searchResults.length / itemsPerPage)
 
   // Lấy tin tức cho trang hiện tại
   const getCurrentPageItems = () => {
     const startIndex = (currentPage - 1) * itemsPerPage
     const endIndex = startIndex + itemsPerPage
-    return newsItems.slice(startIndex, endIndex)
+    return searchResults.slice(startIndex, endIndex) // Thay newsItems bằng searchResults
   }
 
   // Xử lý chuyển trang
@@ -111,13 +114,62 @@ const News = () => {
     return pageNumbers
   }
 
+  // Chuyển đổi timestamp thành ngày tháng năm
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(parseInt(timestamp) * 1000);
+    
+    const formattedDate = date.toLocaleDateString('vi-VN', {
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric'
+    });
+    
+    const formattedTime = date.toLocaleTimeString('vi-VN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+    
+    return `${formattedDate} - ${formattedTime}`;
+  }
+
+  // Hàm xử lý thay đổi input search
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
+  }
+
+  // Hàm xử lý tìm kiếm
+  const handleSearch = () => {
+    if (!searchTerm.trim()) {
+      // Nếu search term trống, hiển thị lại toàn bộ tin tức của category
+      const filteredNews = newsItems.filter(
+        (item: NewsItem) => item.field_term_name === categories.find(cat => cat.tid === selectedCategory)?.name
+      )
+      setSearchResults(filteredNews)
+    } else {
+      // Lọc tin tức theo từ khóa
+      const results = newsItems.filter(item => 
+        (item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.body.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        item.field_term_name === categories.find(cat => cat.tid === selectedCategory)?.name
+      )
+      setSearchResults(results)
+    }
+    setCurrentPage(1) // Reset về trang 1 khi tìm kiếm
+  }
+
+  // Thêm useEffect để theo dõi thay đổi của newsItems
+  useEffect(() => {
+    setSearchResults(newsItems)
+  }, [newsItems])
+
   return (
     <div className="news-container">
       <div className="row">
         <div className="col-md-3">
           <div className="news-sidebar">
             <h5>Tin tức</h5>
-            <ul className="category-list">
+            <ul className="news-category-list">
               {categories.map((category) => (
                 <li key={category.tid}>
                   <a 
@@ -139,15 +191,26 @@ const News = () => {
         <div className="col-md-9">
           <div className="news-header">
             <h2>{categories.find(cat => cat.tid === selectedCategory)?.name}</h2>
-            <div className="search-box">
-              <div className="input-group">
+            <div className="news-search-box">
+              <div className="news-input-group">
                 <input 
                   type="text" 
                   className="form-control" 
                   placeholder="Tìm kiếm..."
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSearch()
+                    }
+                  }}
                 />
-                <button className="btn btn-dark" type="button">
-                  <i className="bi bi-search"></i> TÌM KIẾM
+                <button 
+                  className="btn btn-dark news-btn" 
+                  type="button"
+                  onClick={handleSearch}
+                >
+                  <i className="bi bi-search news-icon"></i> TÌM KIẾM
                 </button>
               </div>
             </div>
@@ -162,22 +225,22 @@ const News = () => {
                       <Link to={`/news/${item.nid}`}>{item.title}</Link>
                     </h5>
                     <div className="news-meta">
-                      Danh mục: {item.field_term_name}
+                      Ngày đăng: {formatTimestamp(item.changed)}
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="no-news">
+                <div className="news-no-content">
                   Không có thông báo nào trong mục này
                 </div>
               )}
             </div>
   
-            {newsItems.length > itemsPerPage && (
-              <div className="pagination-container">
-                <div className="pagination">
+            {searchResults.length > itemsPerPage && (
+              <div className="news-pagination-container">
+                <div className="news-pagination">
                   <button 
-                    className="page-button"
+                    className="news-page-button"
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
                   >
@@ -187,7 +250,7 @@ const News = () => {
                   {getPageNumbers().map((page, index) => (
                     <button
                       key={index}
-                      className={`page-button ${page === currentPage ? 'active' : ''} ${page === '...' ? 'dots' : ''}`}
+                      className={`news-page-button ${page === currentPage ? 'active' : ''} ${page === '...' ? 'dots' : ''}`}
                       onClick={() => typeof page === 'number' && handlePageChange(page)}
                       disabled={page === '...'}
                     >
@@ -196,7 +259,7 @@ const News = () => {
                   ))}
   
                   <button 
-                    className="page-button"
+                    className="news-page-button"
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
                   >

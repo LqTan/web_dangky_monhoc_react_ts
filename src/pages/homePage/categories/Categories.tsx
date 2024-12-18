@@ -5,32 +5,32 @@ import { Link } from 'react-router-dom'
 const Categories = () => {
   const categories = [
     {
-      icon: "bi bi-mortarboard",
-      title: "CỔNG THÔNG TIN SINH VIÊN",
-      path: "/student-portal"
+      icon: "bi bi-search",
+      title: "Tra cứu môn học",
+      subtitle: "Tìm kiếm thông tin về các môn học",
+      path: "/search-courses"
     },
     {
-      icon: "bi bi-journal-text",
-      title: "SỔ TAY SINH VIÊN",
-      path: "/student-handbook"
+      icon: "bi bi-calendar-check",
+      title: "Đăng ký môn học",
+      subtitle: "Đăng ký các môn học trong học kỳ",
+      path: "/register-courses"
     },
     {
-      icon: "bi bi-heart",
-      title: "CẨM NANG CỐ VẤN",
-      path: "/advisor-guide"
-    },
-    {
-      icon: "bi bi-people",
-      title: "SINH HOẠT CÔNG DÂN",
-      path: "/civic-activities"
+      icon: "bi bi-calendar3",
+      title: "Lịch học - Lịch thi",
+      subtitle: "Xem lịch học và lịch thi",
+      path: "/schedule"
     },
     {
       icon: "bi bi-file-text",
-      title: "BIỂU MẪU CẦN THIẾT",
-      path: "/forms"
+      title: "Kết quả học tập",
+      subtitle: "Xem điểm và kết quả học tập",
+      path: "/results"
     }
   ]
-
+  
+  // Trong phần return, thêm subtitle
   return (
     <div className="categories-container">
       <div className="categories-grid">
@@ -38,6 +38,7 @@ const Categories = () => {
           <Link to={category.path} key={index} className="category-card">
             <i className={`${category.icon} category-icon`}></i>
             <h3 className="category-title">{category.title}</h3>
+            <p className="category-subtitle">{category.subtitle}</p>
           </Link>
         ))}
       </div>

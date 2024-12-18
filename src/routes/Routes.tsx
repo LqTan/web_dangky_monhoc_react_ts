@@ -14,6 +14,7 @@ import AllCourses from "../pages/allCourses/AllCourses";
 import { useAuth } from "../context/AuthContext";
 import PaymentResult from "../pages/paymentConfirmation/PaymentResult";
 import NewsDetail from "../pages/homePage/news/NewsDetail";
+import LandingPage from "../pages/landingPage/LandingPage";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -30,7 +31,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   }
   
   if (!isAuthenticated) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/landing-page" />;
   }
 
   return <>{children}</>;
@@ -59,6 +60,7 @@ const AppRoutes = () => {
         <Route path="/all-courses" element={<ProtectedRoute><MainLayout><AllCourses /></MainLayout></ProtectedRoute>} />
         <Route path="/payment-result" element={<ProtectedRoute><MainLayout><PaymentResult /></MainLayout></ProtectedRoute>} />
         <Route path="/news/:tid" element={<ProtectedRoute><MainLayout><NewsDetail /></MainLayout></ProtectedRoute>} />
+        <Route path="/landing-page" element={<PublicRoute><LandingPage /></PublicRoute>} />
     </Routes>
   );
 };

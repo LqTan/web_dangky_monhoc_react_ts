@@ -8,8 +8,13 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { login: authLogin } = useAuth();
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,56 +36,62 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h2 className="text-center mb-4">Chào mừng trở lại</h2>
-        <p className="text-center text-muted">Đăng nhập vào tài khoản của bạn</p>
+        <h2 className="login-title">Welcome Back</h2>
+        <p className="login-subtitle">Sign in to your account</p>
+        
         {error && (
           <div className="alert alert-danger text-center" role="alert">
             {error}
           </div>
         )}
+        
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="username">Tên đăng nhập</label>
-            <div className="input-group">
-              <span className="input-group-text">
-                <i className="bi bi-person"></i>
-              </span>
+          <div className="login-form-group">
+            <label htmlFor="username">Username</label>
+            <div className="input-icon-wrapper">
+              <i className="fas fa-user input-icon"></i>
               <input
                 type="text"
-                className="form-control"
+                className="login-form-control"
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Nhập tên đăng nhập"
+                placeholder="Enter your username"
                 required
               />
             </div>
           </div>
-          <div className="form-group">
-            <label htmlFor="password">Mật khẩu</label>
-            <div className="input-group">
-              <span className="input-group-text">
-                <i className="bi bi-lock"></i>
-              </span>
+  
+          <div className="login-form-group">
+            <label htmlFor="password">Password</label>
+            <div className="input-icon-wrapper">
+              <i className="fas fa-lock input-icon"></i>
               <input
-                type="password"
-                className="form-control"
+                type={showPassword ? "text" : "password"}
+                className="login-form-control"
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Nhập mật khẩu"
+                placeholder="Enter your password"
                 required
               />
+              <i 
+                className={`password-toggle-icon fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}
+                onClick={togglePasswordVisibility}
+              ></i>
             </div>
           </div>
+  
           <button type="submit" className="login-button">
-            Đăng nhập
+            <span>Sign In</span>
+            <i className="fas fa-sign-in-alt ms-2"></i>
           </button>
         </form>
-        <p className="text-center mt-3">
-          Chưa có tài khoản?{' '}
+  
+        <p className="signup-text">
+          Don't have an account?{' '}
           <a href="/register" className="signup-link">
-            Đăng ký
+            Sign up
           </a>
         </p>
       </div>

@@ -2,7 +2,20 @@ import axios from 'axios';
 
 const BASE_URL = 'http://course-management.lndo.site/api';
 
-interface PaymentResponse {
+// Thêm interface cho analytics data
+export interface AnalyticsData {
+  class_code: string;
+  class_name: string;
+  course_code: string;
+  course_name: string;
+  amount: number;
+  currency: string;
+  payment_method: string;
+  student_id: string;
+  student_name: string;
+}
+
+export interface PaymentResponse {
   payment_url?: string;
   message?: string;
   data?: {
@@ -12,7 +25,8 @@ interface PaymentResponse {
     class_code: string;
     class_name: string;
     registered_at?: string;
-  }
+  };
+  analytics_data?: AnalyticsData;
 }
 
 export interface RegisteredClassInfo {
@@ -28,6 +42,8 @@ export interface RegisteredClassInfo {
   field_room: string;
   field_teacher_fullname: string;
   field_course_code: string;
+  changed: string;
+  field_academic_year: string;
 }
 
 // API kiểm tra đăng ký khóa học

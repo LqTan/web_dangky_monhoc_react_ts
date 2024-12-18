@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import '../../styles/pages/paymentConfirmation/PaymentConfirmation.css'
 import SuccessModal from '../../modal/SuccessModal'
-import { registerWithPayPal, registerWithVNPay } from '../../services/apis/classRegistrationAPI'
+import { AnalyticsData, registerWithPayPal, registerWithVNPay } from '../../services/apis/classRegistrationAPI'
 
 // Khai báo kiểu cho PayPal global
 declare global {
   interface Window {
     paypal?: any;
+    gtag?: (command: string, action: string, params: any) => void;
   }
 }
 
@@ -44,6 +45,36 @@ const PaymentConfirmation = () => {
     return null
   }
 
+  // Thêm hàm track event
+  const trackPurchaseEvent = (analyticsData: AnalyticsData, transactionId?: string) => {
+    if (window.gtag) {
+      window.gtag('event', 'purchase', {
+        transaction_id: transactionId,
+        value: analyticsData.amount,
+        currency: analyticsData.currency,
+        items: [{
+          item_id: analyticsData.class_code,
+          item_name: analyticsData.class_name,
+          price: analyticsData.amount
+        }]
+      });
+    }
+  };
+
+  const trackBeginCheckout = (analyticsData: AnalyticsData) => {
+    if (window.gtag) {
+      window.gtag('event', 'begin_checkout', {
+        currency: analyticsData.currency,
+        value: analyticsData.amount,
+        items: [{
+          item_id: analyticsData.class_code,
+          item_name: analyticsData.class_name,
+          price: analyticsData.amount
+        }]
+      });
+    }
+  };
+
   useEffect(() => {
     if (selectedPayment === 'paypal' && window.paypal) {
       window.paypal.Buttons({
@@ -64,6 +95,9 @@ const PaymentConfirmation = () => {
             const order = await actions.order.capture();
             
             const response = await registerWithPayPal(classInfo.title, order.id);
+            if (response.analytics_data) {
+              trackPurchaseEvent(response.analytics_data, order.id);
+            }
             if (response.message) {
               setShowSuccessModal(true);
             }
@@ -117,6 +151,10 @@ const PaymentConfirmation = () => {
     try {
       setIsProcessing(true);
       const response = await registerWithVNPay(classInfo.title);
+
+      if (response.analytics_data) {
+        trackBeginCheckout(response.analytics_data);
+      }
       
       if (response.payment_url) {
         window.location.href = response.payment_url;
@@ -128,6 +166,22 @@ const PaymentConfirmation = () => {
       setIsProcessing(false);
     }
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const transactionData = params.get('transaction_data');
+    
+    if (transactionData) {
+      try {
+        const analyticsData = JSON.parse(transactionData);
+        if (params.get('vnp_ResponseCode') === '00') {
+          trackPurchaseEvent(analyticsData, analyticsData.transaction_id);
+        }
+      } catch (error) {
+        console.error('Lỗi xử lý dữ liệu transaction:', error);
+      }
+    }
+  }, []);
 
   return (
     <div className="payment-container">

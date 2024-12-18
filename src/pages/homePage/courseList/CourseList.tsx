@@ -67,20 +67,20 @@ const CourseList = () => {
   }
 
   return (
-    <div className="course-list-container">
-      <h2 className="section-title">Khóa học nổi bật</h2>
-      <div className="course-categories">
+    <div className="homepage-course-list-container">
+      <h2 className="homepage-section-title">Khóa học nổi bật</h2>
+      <div className="homepage-course-categories">
         <button 
-          className="scroll-button left"
+          className="homepage-scroll-button homepage-left"
           onClick={() => scroll('left')}
         >
           <i className="bi bi-chevron-left"></i>
         </button>
-        <div className="categories-scroll" ref={categoriesRef}>
+        <div className="homepage-categories-scroll" ref={categoriesRef}>
           {categories.map((category) => (
             <button
               key={category.tid}
-              className={`category-button ${selectedCategory === category.name ? 'active' : ''}`}
+              className={`homepage-category-button ${selectedCategory === category.name ? 'homepage-active' : ''}`}
               onClick={() => setSelectedCategory(category.name)}
             >
               {category.name}
@@ -88,32 +88,32 @@ const CourseList = () => {
           ))}
         </div>
         <button 
-          className="scroll-button right"
+          className="homepage-scroll-button homepage-right"
           onClick={() => scroll('right')}
         >
           <i className="bi bi-chevron-right"></i>
         </button>
       </div>
 
-      <div className="courses-grid">
+      <div className="homepage-courses-grid">
         {filteredCourses.map(course => (
-          <div key={course.field_course_code} className="course-card">
-            <div className="course-image">
+          <div key={course.field_course_code} className="homepage-course-card">
+            <div className="homepage-course-image">
               <img 
                 src={getImageUrl(course.field_course_thumbnail)} 
                 alt={course.title} 
               />
             </div>
-            <div className="course-info">
+            <div className="homepage-course-info">
               <h3>
                 <Link to={`/courses/${course.field_course_code}`}>{course.title}</Link>
               </h3>
-              <div className="course-details">
-                <div className="course-code">
+              <div className="homepage-course-details">
+                <div className="homepage-course-code">
                   <i className="bi bi-code-slash"></i>
                   <span>{course.field_course_code}</span>
                 </div>
-                <div className="course-price">
+                <div className="homepage-course-price">
                   <i className="bi bi-currency-exchange"></i>
                   <span>{formatPrice(course.field_course_tuition_fee)}</span>
                 </div>
@@ -123,8 +123,8 @@ const CourseList = () => {
         ))}
       </div>
 
-      <div className="view-all-container">
-        <Link to="/all-courses" className="view-all-button">
+      <div className="homepage-view-all-container">
+        <Link to="/all-courses" className="homepage-view-all-button">
           Xem toàn bộ môn học
         </Link>
       </div>

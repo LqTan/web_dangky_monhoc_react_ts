@@ -7,6 +7,7 @@ const BASE_URL = 'http://course-management.lndo.site';
 
 interface NewsItem {
   title: string;
+  changed: string;
   body: string;
   field_file_upload: string;
   field_term_name: string;
@@ -77,6 +78,25 @@ const NewsDetail = () => {
     return <div>Đang tải...</div>;
   }
 
+  // Chuyển đổi timestamp thành ngày tháng năm
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(parseInt(timestamp) * 1000);
+    
+    const formattedDate = date.toLocaleDateString('vi-VN', {
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric'
+    });
+    
+    const formattedTime = date.toLocaleTimeString('vi-VN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+    
+    return `${formattedDate} - ${formattedTime}`;
+  }
+
   return (
     <div className="news-detail-container">
       {newsItems.map((newsItem, index) => (
@@ -84,7 +104,8 @@ const NewsDetail = () => {
           <div className="news-detail-header">
             <h1>{newsItem.title}</h1>
             <div className="news-detail-meta">
-              <span>Danh mục: {newsItem.field_term_name}</span>
+              <span className="category">Danh mục: {newsItem.field_term_name}</span>
+              <span className="date">Ngày đăng: {formatTimestamp(newsItem.changed)}</span>
             </div>
           </div>
           

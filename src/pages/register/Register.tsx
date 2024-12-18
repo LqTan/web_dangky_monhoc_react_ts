@@ -68,152 +68,159 @@ const Register = () => {
           </div>
         )}
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Tên đăng nhập</label>
-            <div className="input-group">
-              <span className="input-group-text">
-                <i className="bi bi-person"></i>
-              </span>
-              <input
-                type="text"
-                name="name"
-                className="form-control"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Nhập tên đăng nhập"
-                required
-              />
+          <div className="form-row">
+            <div className="form-col">
+              <div className="form-group">
+                <label>Tên đăng nhập</label>
+                <div className="input-group">
+                  <span className="input-group-text">
+                    <i className="bi bi-person"></i>
+                  </span>
+                  <input
+                    type="text"
+                    name="name"
+                    className="form-control"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Nhập tên đăng nhập"
+                    required
+                  />
+                </div>
+              </div>
+  
+              <div className="form-group">
+                <label>Email</label>
+                <div className="input-group">
+                  <span className="input-group-text">
+                    <i className="bi bi-envelope"></i>
+                  </span>
+                  <input
+                    type="email"
+                    name="mail"
+                    className="form-control"
+                    value={formData.mail}
+                    onChange={handleChange}
+                    placeholder="Nhập email"
+                    required
+                  />
+                </div>
+              </div>
+  
+              <div className="form-group">
+                <label>Họ và tên</label>
+                <div className="input-group">
+                  <span className="input-group-text">
+                    <i className="bi bi-person"></i>
+                  </span>
+                  <input
+                    type="text"
+                    name="field_fullname"
+                    className="form-control"
+                    value={formData.field_fullname}
+                    onChange={handleChange}
+                    placeholder="Nhập họ và tên"
+                    required
+                  />
+                </div>
+              </div>
+  
+              <div className="form-group">
+                <label>CMND/CCCD</label>
+                <div className="input-group">
+                  <span className="input-group-text">
+                    <i className="bi bi-card-text"></i>
+                  </span>
+                  <input
+                    type="text"
+                    name="field_identification_code"
+                    className="form-control"
+                    value={formData.field_identification_code}
+                    onChange={handleChange}
+                    placeholder="Nhập CMND/CCCD"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+  
+            <div className="form-col">
+              <div className="form-group">
+                <label>Số điện thoại</label>
+                <div className="input-group">
+                  <span className="input-group-text">
+                    <i className="bi bi-telephone"></i>
+                  </span>
+                  <input
+                    type="text"
+                    name="field_phone_number"
+                    className="form-control"
+                    value={formData.field_phone_number}
+                    onChange={handleChange}
+                    placeholder="Nhập số điện thoại"
+                    required
+                  />
+                </div>
+              </div>
+  
+              <div className="form-group">
+                <label>Nơi làm việc</label>
+                <div className="input-group">
+                  <span className="input-group-text">
+                    <i className="bi bi-building"></i>
+                  </span>
+                  <input
+                    type="text"
+                    name="field_workplace"
+                    className="form-control"
+                    value={formData.field_workplace}
+                    onChange={handleChange}
+                    placeholder="Nhập nơi làm việc"
+                    required
+                  />
+                </div>
+              </div>
+  
+              <div className="form-group">
+                <label>Mật khẩu</label>
+                <div className="input-group">
+                  <span className="input-group-text">
+                    <i className="bi bi-lock"></i>
+                  </span>
+                  <input
+                    type="password"
+                    name="pass"
+                    className="form-control"
+                    value={formData.pass}
+                    onChange={handleChange}
+                    placeholder="Nhập mật khẩu"
+                    required
+                  />
+                </div>
+              </div>
+  
+              <div className="form-group">
+                <label>Xác nhận mật khẩu</label>
+                <div className="input-group">
+                  <span className="input-group-text">
+                    <i className="bi bi-shield-lock"></i>
+                  </span>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    className="form-control"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    placeholder="Nhập lại mật khẩu"
+                    required
+                  />
+                </div>
+              </div>
             </div>
           </div>
-
-          <div className="form-group">
-            <label>Email</label>
-            <div className="input-group">
-              <span className="input-group-text">
-                <i className="bi bi-envelope"></i>
-              </span>
-              <input
-                type="email"
-                name="mail"
-                className="form-control"
-                value={formData.mail}
-                onChange={handleChange}
-                placeholder="Nhập email"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Họ và tên</label>
-            <div className="input-group">
-              <span className="input-group-text">
-                <i className="bi bi-person"></i>
-              </span>
-              <input
-                type="text"
-                name="field_fullname"
-                className="form-control"
-                value={formData.field_fullname}
-                onChange={handleChange}
-                placeholder="Nhập họ và tên"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>CMND/CCCD</label>
-            <div className="input-group">
-              <span className="input-group-text">
-                <i className="bi bi-card-text"></i>
-              </span>
-              <input
-                type="text"
-                name="field_identification_code"
-                className="form-control"
-                value={formData.field_identification_code}
-                onChange={handleChange}
-                placeholder="Nhập CMND/CCCD"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Số điện thoại</label>
-            <div className="input-group">
-              <span className="input-group-text">
-                <i className="bi bi-telephone"></i>
-              </span>
-              <input
-                type="text"
-                name="field_phone_number"
-                className="form-control"
-                value={formData.field_phone_number}
-                onChange={handleChange}
-                placeholder="Nhập số điện thoại"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Nơi làm việc</label>
-            <div className="input-group">
-              <span className="input-group-text">
-                <i className="bi bi-building"></i>
-              </span>
-              <input
-                type="text"
-                name="field_workplace"
-                className="form-control"
-                value={formData.field_workplace}
-                onChange={handleChange}
-                placeholder="Nhập nơi làm việc"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Mật khẩu</label>
-            <div className="input-group">
-              <span className="input-group-text">
-                <i className="bi bi-lock"></i>
-              </span>
-              <input
-                type="password"
-                name="pass"
-                className="form-control"
-                value={formData.pass}
-                onChange={handleChange}
-                placeholder="Nhập mật khẩu"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Xác nhận mật khẩu</label>
-            <div className="input-group">
-              <span className="input-group-text">
-                <i className="bi bi-shield-lock"></i>
-              </span>
-              <input
-                type="password"
-                name="confirmPassword"
-                className="form-control"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Nhập lại mật khẩu"
-                required
-              />
-            </div>
-          </div>
-
+  
           <button type="submit" className="register-button">
-            Đăng ký
+            <span>Đăng ký</span>
+            <i className="bi bi-person-plus"></i>
           </button>
         </form>
         <p className="text-center mt-3">
@@ -224,7 +231,7 @@ const Register = () => {
         </p>
       </div>
     </div>
-  )
+  );
 }
 
 export default Register

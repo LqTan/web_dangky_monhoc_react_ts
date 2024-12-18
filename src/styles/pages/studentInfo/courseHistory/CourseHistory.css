@@ -9,6 +9,18 @@
     width: 100%;
     overflow-x: auto;
   }
+
+  .empty-message {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+  }
+  
+  .error-message {
+    color: #dc3545;
+    text-align: center;
+    padding: 20px;
+  }
   
   table {
     width: 100%;
@@ -57,3 +69,27 @@
       min-width: 600px;
     }
   }
+
+  /* Thêm vào cuối file */
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.semester-select select {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #212529;
+  background-color: white;
+  cursor: pointer;
+}
+
+.semester-select select:focus {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}

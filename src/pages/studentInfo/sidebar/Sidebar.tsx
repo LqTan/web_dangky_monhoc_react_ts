@@ -10,12 +10,12 @@ const Sidebar = ({ onSelect }) => {
   const menuItems = [
     { icon: 'bi bi-person', label: 'Thông tin cá nhân' },
     { icon: 'bi bi-clock-history', label: 'Lịch sử đăng ký' },
-    { icon: 'bi bi-book', label: 'Thông tin môn học' },
+    // { icon: 'bi bi-book', label: 'Thông tin môn học' },
     { icon: 'bi bi-calendar', label: 'Lịch học' },
     { icon: 'bi bi-calendar-check', label: 'Lịch thi' },
     { icon: 'bi bi-mortarboard', label: 'Kết quả học tập' },
     { icon: 'bi bi-clock', label: 'Chứng chỉ' },
-    { icon: 'bi bi-wallet2', label: 'Học phí' },
+    // { icon: 'bi bi-wallet2', label: 'Học phí' },
   ]
 
   const handleLogout = () => {

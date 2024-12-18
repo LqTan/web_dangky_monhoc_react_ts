@@ -23,6 +23,8 @@ const StudentInfo = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [refreshTrigger, setRefreshTrigger] = useState(0); // Thêm state này
+
 
   const handleInputChange = (field: keyof UserProfile, value: string) => {
     if (editedProfile) {
@@ -56,26 +58,19 @@ const StudentInfo = () => {
       const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
       
       try {
-        // Upload avatar nếu có
         if (selectedFile) {
-          const avatarResponse = await uploadAvatar(userId, selectedFile);
+          await uploadAvatar(userId, selectedFile);
         }
   
-        // Cập nhật thông tin profile
-        const updatedProfileResponse = await updateUserProfile(userId, {
+        await updateUserProfile(userId, {
           fullname: editedProfile.fullname,
           phone_number: editedProfile.phone_number,
           workplace: editedProfile.workplace,
         });
   
-        // Lấy thông tin mới nhất từ server
-        const latestProfile = await getUserProfile(userId);        
-        
-        // Cập nhật state với thông tin mới nhất
-        setProfile(latestProfile);
-        setEditedProfile(null);
         setIsEditing(false);
         setSelectedFile(null);
+        setRefreshTrigger(prev => prev + 1); // Trigger useEffect để fetch dữ liệu mới
   
       } catch (err: any) {
         if (err.response?.status === 403) {
@@ -91,6 +86,7 @@ const StudentInfo = () => {
     }
   };
 
+  // Sửa lại useEffect để lắng nghe refreshTrigger
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -99,7 +95,7 @@ const StudentInfo = () => {
           throw new Error('User ID not found');
         }
         const data = await getUserProfile(userId);
-        console.log(data);
+        console.log('Fetched profile:', data); // Thêm log để debug
         setProfile(data);
       } catch (err: any) {
         if (err.message === 'Chưa đăng nhập' || err.response?.status === 403) {
@@ -114,7 +110,7 @@ const StudentInfo = () => {
     };
 
     fetchProfile();
-  }, [navigate]);
+  }, [navigate, refreshTrigger]); // Thêm refreshTrigger vào dependencies
 
   const renderPersonalInfo = () => {
     if (loading) {
@@ -272,8 +268,8 @@ const StudentInfo = () => {
         return renderPersonalInfo();
       case 'Lịch sử đăng ký':
         return <CourseHistory />;
-      case 'Thông tin môn học':
-        return <div className="profile-card">Thông tin môn học</div>;
+      // case 'Thông tin môn học':
+      //   return <div className="profile-card">Thông tin môn học</div>;
       case 'Lịch học':
         return <ClassSchedule />;
       case 'Lịch thi':
@@ -282,8 +278,8 @@ const StudentInfo = () => {
         return <StudyResults />;
       case 'Chứng chỉ':
         return <Certificates />;
-      case 'Học phí':
-        return <TuitionFees />;
+      // case 'Học phí':
+      //   return <TuitionFees />;
       default:
         return renderPersonalInfo();
     }

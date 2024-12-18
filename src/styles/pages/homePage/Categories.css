@@ -5,7 +5,7 @@
 
 .categories-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr); /* Thay đổi từ 5 thành 4 cột */
   gap: 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
@@ -38,10 +38,21 @@
 }
 
 .category-title {
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 1.25rem; /* Tăng kích thước từ 1.1rem lên 1.25rem */
+  font-weight: 700; /* Tăng độ đậm từ 600 lên 700 */
   margin: 0;
   line-height: 1.4;
+  position: relative;
+  z-index: 1;
+}
+
+.category-subtitle {
+  font-size: 0.75rem; /* Giảm từ 0.85rem xuống 0.75rem */
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 0.5rem;
+  position: relative;
+  z-index: 1;
+  font-weight: 400; /* Thêm font-weight bình thường cho subtitle */
 }
 
 @media (max-width: 992px) {

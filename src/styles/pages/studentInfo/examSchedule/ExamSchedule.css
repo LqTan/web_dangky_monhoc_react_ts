@@ -52,3 +52,8 @@
       min-width: 800px;
     }
   }
+
+  .status-badge.completed {
+    background-color: #e5e7eb;
+    color: #6b7280;
+  }

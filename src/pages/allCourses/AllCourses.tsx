@@ -2,14 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import '../../styles/pages/allCourses/AllCourses.css'
 import { Course, fetchCourses } from '../../services/apis/courseAPI'
-import { fetchCourseCategories } from '../../services/apis/courseCategoryAPI'
-
-interface CategoryData {
-  id: string
-  name: string
-  createdAt: string
-  updatedAt: string
-}
+import { CategoryData, fetchCourseCategories } from '../../services/apis/courseCategoryAPI'
 
 // Mapping icons cho các danh mục
 const categoryIcons: { [key: string]: string } = {
@@ -26,7 +19,7 @@ const categoryIcons: { [key: string]: string } = {
 }
 
 const AllCourses = () => {
-  const [selectedCategory, setSelectedCategory] = useState('data-analysis-microsoft')
+  const [selectedCategory, setSelectedCategory] = useState('')
   const [categories, setCategories] = useState<CategoryData[]>([])
   const [courses, setCourses] = useState<Course[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -37,7 +30,7 @@ const AllCourses = () => {
         const categoryData = await fetchCourseCategories()
         setCategories(categoryData)
         if (categoryData.length > 0) {
-          setSelectedCategory(categoryData[0].id)
+          setSelectedCategory(categoryData[0].name)
         }
 
         const courseData = await fetchCourses()
@@ -50,184 +43,87 @@ const AllCourses = () => {
     loadData()
   }, [])
 
-  const selectedCategoryData = categories.find(cat => cat.id === selectedCategory)
+  const selectedCategoryData = categories.find(cat => cat.name === selectedCategory)
   const filteredCourses = courses.filter(course => {
-    const matchesCategory = course.categoryId === selectedCategory
-    const matchesSearch = course.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesCategory = course.training_program_tid === selectedCategoryData?.tid
+    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase())
     return matchesCategory && (searchTerm === '' || matchesSearch)
   })
 
-  // const categories = [
-  //   {
-  //     id: 'data-analysis-microsoft',
-  //     icon: 'bi bi-microsoft',
-  //     name: 'Data Analysis - Microsoft Platform',
-  //     courses: [
-  //       {
-  //         id: 1,
-  //         title: 'Data Analysis Certificate (Excel & PowerBI)',
-  //         duration: '3 tháng',
-  //         originalPrice: '6.000.000đ',
-  //         salePrice: '5.400.000đ',
-  //         image: 'https://placehold.co/600x400/4a148c/white?text=Excel+%26+PowerBI'
-  //       },
-  //       {
-  //         id: 2,
-  //         title: 'Data Analysis & Visualization with Power BI (Basic to Advanced)',
-  //         duration: '2 tháng',
-  //         originalPrice: '4.500.000đ',
-  //         salePrice: '4.000.000đ',
-  //         image: 'https://placehold.co/600x400/4a148c/white?text=Power+BI'
-  //       }
-  //     ]
-  //   },
-  //   {
-  //     id: 'data-analysis-google',
-  //     icon: 'bi bi-google',
-  //     name: 'Data Analysis - Google Platform',
-  //     courses: [
-  //       {
-  //         id: 3,
-  //         title: 'Google Data Analytics Professional Certificate',
-  //         duration: '4 tháng',
-  //         originalPrice: '7.000.000đ',
-  //         salePrice: '6.300.000đ',
-  //         image: 'https://placehold.co/600x400/4a148c/white?text=Google+Analytics'
-  //       }
-  //     ]
-  //   },
-  //   {
-  //     id: 'data-science',
-  //     icon: 'bi bi-cpu',
-  //     name: 'Chuyên Đề Data Science & Machine Learning',
-  //     courses: [
-  //       {
-  //         id: 4,
-  //         title: 'Machine Learning with Azure',
-  //         duration: '6 tháng',
-  //         originalPrice: '12.000.000đ',
-  //         salePrice: '10.800.000đ',
-  //         image: 'https://placehold.co/600x400/4a148c/white?text=Machine+Learning'
-  //       }
-  //     ]
-  //   },
-  //   {
-  //     id: 'programming',
-  //     icon: 'bi bi-code-slash',
-  //     name: 'Lập trình ứng dụng',
-  //     courses: []
-  //   },
-  //   {
-  //     id: 'testing',
-  //     icon: 'bi bi-bug',
-  //     name: 'Kiểm thử phần mềm',
-  //     courses: []
-  //   },
-  //   {
-  //     id: 'devops',
-  //     icon: 'bi bi-gear',
-  //     name: 'Master DevOps Engineer',
-  //     courses: []
-  //   },
-  //   {
-  //     id: 'network',
-  //     icon: 'bi bi-hdd-network',
-  //     name: 'Mạng máy tính',
-  //     courses: []
-  //   },
-  //   {
-  //     id: 'office',
-  //     icon: 'bi bi-pc-display',
-  //     name: 'Tin học văn phòng',
-  //     courses: []
-  //   },
-  //   {
-  //     id: 'graphics',
-  //     icon: 'bi bi-brush',
-  //     name: 'Đồ họa đa truyền thông',
-  //     courses: []
-  //   },
-  //   {
-  //     id: 'international',
-  //     icon: 'bi bi-globe',
-  //     name: 'Tin học Quốc tế',
-  //     courses: []
-  //   }
-  // ]
-  
+  const getImageUrl = (imagePath: string) => {
+    if (!imagePath) return ''
+    return imagePath.replace('public://', 'http://course-management.lndo.site/sites/default/files/')
+  }
 
   return (
-    <div className="all-courses-container">
-      <div className="courses-sidebar">
+    <div className="searching-all-courses-container">
+      <div className="searching-courses-sidebar">
         <h3>Chương trình đào tạo</h3>
-        <div className="category-list">
+        <div className="searching-category-list">
           {categories.map(category => (
             <button
-              key={category.id}
-              className={`category-item ${selectedCategory === category.id ? 'active' : ''}`}
-              onClick={() => setSelectedCategory(category.id)}
+              key={category.tid}
+              className={`searching-category-item ${selectedCategory === category.name ? 'searching-active' : ''}`}
+              onClick={() => setSelectedCategory(category.name)}
             >
               <i className={categoryIcons[category.name] || 'bi bi-folder'}></i>
               <span>{category.name}</span>
-              {/* {category.courses.length > 0 && (
-                <span className="course-count">{category.courses.length}</span>
-              )} */}
-              <span className="course-count">
-                {courses.filter(course => course.categoryId === category.id).length}
+              <span className="searching-course-count">
+                {courses.filter(course => course.training_program_tid === category.tid).length}
               </span>
             </button>
           ))}
         </div>
       </div>
 
-      <div className="courses-content">
-        <div className="courses-header">
-          <h2>{selectedCategoryData?.name}</h2>
-          <div className="search-box">
-            <div className="input-group">
+      <div className="searching-courses-content">
+        <div className="searching-courses-header">
+          <h2>{selectedCategory}</h2>
+          <div className="searching-search-box">
+            <div className="searching-input-group">
               <input 
                 type="text" 
-                className="form-control" 
+                className="searching-form-control" 
                 placeholder="Tìm kiếm khóa học..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <button className="btn btn-search">
+              <button className="searching-btn-search">
                 <i className="bi bi-search"></i>
               </button>
             </div>
           </div>
         </div>
 
-        <div className="courses-grid">
-        {filteredCourses.map(course => (
-            <div key={course.courseCode} className="course-card">
-              <div className="course-image">
-                <img src={course.imageUrl} alt={course.name} />
+        <div className="searching-courses-grid">
+          {filteredCourses.map(course => (
+            <div key={course.field_course_code} className="searching-course-card">
+              <div className="searching-course-image">
+                <img src={getImageUrl(course.field_course_thumbnail)} alt={course.title} />
               </div>
-              <div className="course-info">
+              <div className="searching-course-info">
                 <h3>
-                  <Link to={`/courses/${course.courseCode}`}>{course.name}</Link>
+                  <Link to={`/courses/${course.field_course_code}`}>{course.title}</Link>
                 </h3>
-                <div className="course-code">
+                <div className="searching-course-code">
                   <i className="bi bi-code-slash"></i>
-                  <span>{course.courseCode}</span>
+                  <span>{course.field_course_code}</span>
                 </div>
-                <div className="course-price">
+                <div className="searching-course-price">
                   <i className="bi bi-currency-exchange"></i>
                   <span>{new Intl.NumberFormat('vi-VN', {
                     style: 'currency',
                     currency: 'VND'
-                  }).format(course.price)}</span>
+                  }).format(parseFloat(course.field_course_tuition_fee))}</span>
                 </div>
-                <Link to={`/courses/${course.courseCode}`} className="view-detail-button">
+                <Link to={`/courses/${course.field_course_code}`} className="searching-view-detail-button">
                   Xem chi tiết
                 </Link>
               </div>
             </div>
           ))}
           {filteredCourses.length === 0 && (
-            <div className="no-courses">
+            <div className="searching-no-courses">
               <i className="bi bi-info-circle"></i>
               <p>Chưa có khóa học nào trong danh mục này</p>
             </div>
