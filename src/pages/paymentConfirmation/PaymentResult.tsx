@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../../styles/pages/paymentConfirmation/PaymentResult.css';
 import { useAuth } from '../../context/AuthContext';
+import { verifyPaymentStatus } from '../../services/apis/classRegistrationAPI';
 
 const PaymentResult = () => {
   const location = useLocation();
@@ -14,23 +15,22 @@ const PaymentResult = () => {
     const params = new URLSearchParams(location.search);
     const responseCode = params.get('vnp_ResponseCode');
     const transactionStatus = params.get('vnp_TransactionStatus');
-
+    const paypalOrderId = params.get('orderId');
+    
+    // Xử lý kết quả thanh toán
     if (responseCode === '00' && transactionStatus === '00') {
+      // VNPAY success
+      setStatus('success');
+      setMessage('Thanh toán và đăng ký thành công!');
+    } else if (paypalOrderId) {
+      // PayPal success (đã được xử lý ở PaymentConfirmation.tsx)
       setStatus('success');
       setMessage('Thanh toán và đăng ký thành công!');
     } else {
       setStatus('error');
       setMessage('Thanh toán thất bại!');
     }
-
-    // Nếu không authenticated, redirect sau 3 giây
-    if (!isAuthenticated) {
-      const timer = setTimeout(() => {
-        navigate('/login');
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [location, isAuthenticated, navigate]);
+  }, [location]);
 
   const handleReturn = () => {
     if (isAuthenticated) {

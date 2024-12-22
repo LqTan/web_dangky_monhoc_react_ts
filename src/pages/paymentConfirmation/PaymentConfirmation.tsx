@@ -98,9 +98,9 @@ const PaymentConfirmation = () => {
             if (response.analytics_data) {
               trackPurchaseEvent(response.analytics_data, order.id);
             }
-            if (response.message) {
-              setShowSuccessModal(true);
-            }
+            
+            // Redirect to payment result page
+            navigate(`/payment-result?orderId=${order.id}`);
           } catch (error) {
             console.error('Lỗi thanh toán:', error);
             alert('Có lỗi xảy ra trong quá trình thanh toán');
@@ -115,7 +115,7 @@ const PaymentConfirmation = () => {
         }
       }).render('#paypal-button-container');
     }
-  }, [selectedPayment]);
+  }, [selectedPayment, courseInfo, classInfo, navigate]);
 
   const formatPrice = (price: string) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -158,6 +158,8 @@ const PaymentConfirmation = () => {
       
       if (response.payment_url) {
         window.location.href = response.payment_url;
+      } else {
+        throw new Error('Không nhận được URL thanh toán');
       }
     } catch (error) {
       console.error('Lỗi thanh toán:', error);

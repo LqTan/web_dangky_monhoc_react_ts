@@ -15,6 +15,13 @@ export interface AnalyticsData {
   student_name: string;
 }
 
+export interface PaymentVerificationResponse {
+  success: boolean;
+  registration_id?: string;
+  transaction_id?: string;
+  message?: string;
+}
+
 export interface PaymentResponse {
   payment_url?: string;
   message?: string;
@@ -88,7 +95,7 @@ export const fetchRegisteredClasses = async (uid: string) => {
 };
 
 // API đăng ký khóa học với VNPAY
-export const registerWithVNPay = async (classCode: string) => {
+export const registerWithVNPay = async (classCode: string): Promise<PaymentResponse> => {
   try {
     const basicAuth = localStorage.getItem('auth');
     if (!basicAuth) {
@@ -108,6 +115,7 @@ export const registerWithVNPay = async (classCode: string) => {
         }
       }
     );
+    console.log(response);
     
     return response.data;
   } catch (error) {
@@ -117,7 +125,7 @@ export const registerWithVNPay = async (classCode: string) => {
 };
 
 // API đăng ký khóa học với PayPal
-export const registerWithPayPal = async (classCode: string, paypalTransactionId: string) => {
+export const registerWithPayPal = async (classCode: string, paypalTransactionId: string): Promise<PaymentResponse> => {
   try {
     const basicAuth = localStorage.getItem('auth');
     if (!basicAuth) {
@@ -134,14 +142,40 @@ export const registerWithPayPal = async (classCode: string, paypalTransactionId:
       {
         headers: {
           'Authorization': `Basic ${basicAuth}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         }
       }
     );
     
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Lỗi đăng ký PayPal:', error);
     throw error;
   }
 };
+
+export const verifyPaymentStatus = async (paymentMethod: string, transactionId: string) => {
+  try {
+    const basicAuth = localStorage.getItem('auth');
+    if (!basicAuth) {
+      throw new Error('Vui lòng đăng nhập lại');
+    }
+    const response = await axios.post<PaymentVerificationResponse>(
+      `${BASE_URL}/verify-payment`,
+     {
+       payment_method: paymentMethod,
+       transaction_id: transactionId
+     },
+     {
+       headers: {
+         'Authorization': `Basic ${basicAuth}`,
+         'Content-Type': 'application/json'
+       }
+     }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Lỗi verify payment:', error);
+    throw error;
+  }
+}
