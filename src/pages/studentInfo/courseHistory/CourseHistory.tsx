@@ -1,45 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import '../../../styles/pages/studentInfo/courseHistory/CourseHistory.css';
-import { fetchRegisteredClasses, RegisteredClassInfo } from '../../../services/apis/classRegistrationAPI';
-import { fetchCourseByCode, Course } from '../../../services/apis/courseAPI';
-import { fetchSemesters, Semester } from '../../../services/apis/semesterAPI';
 import { useNavigate } from 'react-router-dom';
+import { fetchRegisteredClasses, ClassRegistration } from '../../../services/apis/classRegistrationAPI';
+import { fetchClasses, Class } from '../../../services/apis/classAPI';
+import { fetchCourseByCode, Course } from '../../../services/apis/courseAPI';
+import '../../../styles/pages/studentInfo/courseHistory/CourseHistory.css';
 
 interface CourseHistoryItem {
+  registrationTitle: string;
   courseId: string;
   courseName: string;
-  registerDate: string;
-  fee: string;
-  status: string;
   classCode: string;
-  academicYear: string;
+  status: string;
+  fee: string;
+  classInfo: Class;
+  courseInfo: Course;
 }
 
 const CourseHistory = () => {
   const [courseHistory, setCourseHistory] = useState<CourseHistoryItem[]>([]);
-  const [filteredHistory, setFilteredHistory] = useState<CourseHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [semesters, setSemesters] = useState<Semester[]>([]);
-  const [selectedYear, setSelectedYear] = useState<string>('all');
   const navigate = useNavigate();
-
-  const formatTimestamp = (timestamp: string): string => {
-    const date = new Date(parseInt(timestamp) * 1000);
-    return date.toLocaleString('en-US', {
-      month: '2-digit',
-      day: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    }).replace(',', ' -');
-  };
-
-  const formatCurrency = (amount: string): string => {
-    const number = parseFloat(amount).toFixed(0);
-    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -49,49 +30,45 @@ const CourseHistory = () => {
           throw new Error('Không tìm thấy thông tin người dùng');
         }
 
-        // Fetch semesters
-        const semesterData = await fetchSemesters();
-        setSemesters(semesterData);
-
-        // Fetch registered classes
-        const registeredClasses = await fetchRegisteredClasses(userId);
-        const courseMap = new Map<string, Course>();
-
+        // Lấy danh sách đăng ký
+        const registrations = await fetchRegisteredClasses(userId);
+        
+        // Lấy danh sách lớp học
+        const classes = await fetchClasses();
+        
+        // Xử lý và map dữ liệu
         const historyItems = await Promise.all(
-          registeredClasses.map(async (classInfo) => {
-            let course: Course;
+          registrations.map(async (reg) => {
+            // Lấy mã lớp từ title đăng ký
+            const classCode = reg.title.split(' - ')[1];
             
-            if (courseMap.has(classInfo.field_course_code)) {
-              course = courseMap.get(classInfo.field_course_code)!;
-            } else {
-              course = await fetchCourseByCode(classInfo.field_course_code);
-              courseMap.set(classInfo.field_course_code, course);
+            // Tìm thông tin lớp học
+            const classInfo = classes.find(c => c.title === classCode);
+            
+            if (!classInfo) {
+              throw new Error(`Không tìm thấy thông tin lớp ${classCode}`);
             }
 
-            const registerDate = formatTimestamp(classInfo.changed);
-            const formattedFee = formatCurrency(course.field_course_tuition_fee);
+            // Lấy thông tin khóa học
+            const course = await fetchCourseByCode(classInfo.field_course_code);
 
             return {
+              registrationTitle: reg.title,
               courseId: classInfo.field_course_code,
               courseName: course.title,
-              registerDate: registerDate,
-              fee: formattedFee,
-              status: 'Đã xác nhận',
-              classCode: classInfo.field_class_code,
-              academicYear: classInfo.field_academic_year
+              classCode: classInfo.title,
+              status: reg.field_registration_status,
+              fee: course.field_course_tuition_fee,
+              classInfo: classInfo,
+              courseInfo: course
             };
           })
         );
 
         setCourseHistory(historyItems);
-        setFilteredHistory(historyItems);
       } catch (err: any) {
-        if (err.response?.status === 403) {
-          navigate('/login');
-        } else {
-          setError('Không thể tải lịch sử khóa học. Vui lòng thử lại sau.');
-        }
         console.error(err);
+        setError('Không thể tải lịch sử đăng ký. Vui lòng thử lại sau.');
       } finally {
         setLoading(false);
       }
@@ -100,38 +77,70 @@ const CourseHistory = () => {
     loadData();
   }, [navigate]);
 
-  useEffect(() => {
-    if (selectedYear === 'all') {
-      setFilteredHistory(courseHistory);
-    } else {
-      const filtered = courseHistory.filter(item => item.academicYear === selectedYear);
-      setFilteredHistory(filtered);
+  const handlePayment = (items: CourseHistoryItem[]) => {
+    const unpaidItems = items.filter(item => item.status === 'pending');
+    if (unpaidItems.length === 0) {
+      alert('Không có lớp học nào cần thanh toán');
+      return;
     }
-  }, [selectedYear, courseHistory]);
+
+    navigate('/payment-confirmation', {
+      state: {
+        registrations: unpaidItems.map(item => ({
+          classInfo: item.classInfo,
+          courseInfo: item.courseInfo
+        }))
+      }
+    });
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'Chờ thanh toán';
+      case 'confirmed':
+        return 'Đã xác nhận';
+      case 'cancelled':
+        return 'Đã hủy';
+      default:
+        return status;
+    }
+  };
+
+  const getStatusClass = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'pending';
+      case 'confirmed':
+        return 'confirmed';
+      case 'cancelled':
+        return 'cancelled';
+      default:
+        return '';
+    }
+  };
 
   if (loading) return <div className="profile-card">Đang tải...</div>;
   if (error) return <div className="profile-card error-message">{error}</div>;
+
+  // Lọc ra các đăng ký cần thanh toán
+  const pendingRegistrations = courseHistory.filter(item => item.status === 'pending');
 
   return (
     <div className="profile-card">
       <div className="history-header">
         <h2 className="history-title">Lịch sử đăng ký khóa học</h2>
-        <div className="semester-select">
-          <select 
-            value={selectedYear} 
-            onChange={(e) => setSelectedYear(e.target.value)}
+        {pendingRegistrations.length > 0 && (
+          <button 
+            className="payment-button"
+            onClick={() => handlePayment(courseHistory)}
           >
-            <option value="all">Tất cả năm học</option>
-            {semesters.map((semester) => (
-              <option key={semester.tid} value={semester.name.split('(')[1].split(')')[0]}>
-                {semester.name}
-              </option>
-            ))}
-          </select>
-        </div>
+            Thanh toán ({pendingRegistrations.length} lớp)
+          </button>
+        )}
       </div>
 
-      {filteredHistory.length === 0 ? (
+      {courseHistory.length === 0 ? (
         <div className="empty-message">Chưa có khóa học nào được đăng ký</div>
       ) : (
         <div className="history-table">
@@ -141,22 +150,20 @@ const CourseHistory = () => {
                 <th>Mã khóa học</th>
                 <th>Tên khóa học</th>
                 <th>Mã lớp</th>
-                <th>Ngày đăng ký</th>
                 <th>Học phí</th>
                 <th>Trạng thái</th>
               </tr>
             </thead>
             <tbody>
-              {filteredHistory.map((course, index) => (
+              {courseHistory.map((item, index) => (
                 <tr key={index}>
-                  <td>{course.courseId}</td>
-                  <td>{course.courseName}</td>
-                  <td>{course.classCode}</td>
-                  <td>{course.registerDate}</td>
-                  <td>{course.fee} đ</td>
+                  <td>{item.courseId}</td>
+                  <td>{item.courseName}</td>
+                  <td>{item.classCode}</td>
+                  <td>{new Intl.NumberFormat('vi-VN').format(parseInt(item.fee))} đ</td>
                   <td>
-                    <span className={`status-badge ${course.status === 'Đã xác nhận' ? 'confirmed' : 'pending'}`}>
-                      {course.status}
+                    <span className={`status-badge ${getStatusClass(item.status)}`}>
+                      {getStatusText(item.status)}
                     </span>
                   </td>
                 </tr>

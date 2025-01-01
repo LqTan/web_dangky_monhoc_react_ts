@@ -20,7 +20,7 @@ const Categories = () => {
       icon: "bi bi-calendar3",
       title: "Lịch học - Lịch thi",
       subtitle: "Xem lịch học và lịch thi",
-      path: "/schedule"
+      path: "/exam-schedules"
     },
     {
       icon: "bi bi-file-text",

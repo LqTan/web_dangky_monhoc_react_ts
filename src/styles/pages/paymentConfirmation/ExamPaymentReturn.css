@@ -1,0 +1,21 @@
+.payment-return-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f2f5;
+    padding: 20px;
+  }
+  
+  .payment-return-content {
+    max-width: 500px;
+    width: 100%;
+  }
+  
+  .ant-alert {
+    margin-bottom: 20px;
+  }
+  
+  .ant-spin {
+    margin: 20px 0;
+  }

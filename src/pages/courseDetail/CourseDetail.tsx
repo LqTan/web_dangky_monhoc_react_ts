@@ -7,7 +7,7 @@ import { Course, fetchCourseByCode } from '../../services/apis/courseAPI'
 import { fetchCourseCategories } from '../../services/apis/courseCategoryAPI'
 import { Class, fetchClasses } from '../../services/apis/classAPI'
 import { useAuth } from '../../context/AuthContext'
-import { checkCourseRegistration } from '../../services/apis/classRegistrationAPI'
+import { fetchRegisteredClasses } from '../../services/apis/classRegistrationAPI'
 
 const CourseDetail = () => {
   const { id } = useParams()  
@@ -19,8 +19,8 @@ const CourseDetail = () => {
   const [categoryName, setCategoryName] = useState('')
   const [classes, setClasses] = useState<Class[]>([])
   const [selectedClass, setSelectedClass] = useState<string>('')
-  const [isAlreadyRegistered, setIsAlreadyRegistered] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [registeredClassForThisCourse, setRegisteredClassForThisCourse] = useState<string | null>(null)
 
   useEffect(() => {
     const loadCourseData = async () => {
@@ -34,24 +34,31 @@ const CourseDetail = () => {
 
         // Tải danh sách lớp học
         const classesData = await fetchClasses();
-        console.log(classesData)
         // Lọc lớp học theo khóa học
         const filteredClasses = classesData.filter((cls: Class) => cls.field_course_code === id);
         setClasses(filteredClasses);
 
         // Tải danh sách danh mục để lấy tên danh mục
         const categories = await fetchCourseCategories();        
-        const category = categories.find((cat: any) => 
-          cat.tid === courseData.training_program_tid
-        );
+        const category = categories.find((cat: any) => cat.tid === courseData.training_program_tid);
         if (category) {          
           setCategoryName(category.name);
         }
 
-        // Kiểm tra đăng ký nếu user đã đăng nhập
+        // Kiểm tra đăng ký cho môn học này
         if (user) {
-          const isRegistered = await checkCourseRegistration(user.id, id);                  
-          setIsAlreadyRegistered(isRegistered);
+          const registrations = await fetchRegisteredClasses(user.id);
+          // Tìm lớp đã đăng ký của môn học này
+          const registeredClass = registrations.find(reg => {
+            const classCode = reg.title.split(' - ')[1];
+            const classInfo = filteredClasses.find(cls => cls.title === classCode);
+            return classInfo !== undefined;
+          });
+          
+          if (registeredClass) {
+            const classCode = registeredClass.title.split(' - ')[1];
+            setRegisteredClassForThisCourse(classCode);
+          }
         }
 
       } catch (error) {
@@ -69,45 +76,13 @@ const CourseDetail = () => {
     setShowConfirmModal(true)
   }
 
-  const handleConFirmRegistation = async () => {
-    try {
-      if (!user) {
-        alert('Bạn cần đăng nhập để đăng ký lớp học');
-        navigate('/login');
-        return;
-      }
-  
-      // const result = await registerClass(selectedClass);
-      // console.log('Đăng ký thành công:', result);
-      setShowConfirmModal(false);
-
-      // Chuyển hướng đến trang thanh toán với thông tin lớp học
-      const selectedClassInfo = classes.find(c => c.title === selectedClass);
-      navigate('/payment-confirmation', { 
-        state: { 
-          classInfo: selectedClassInfo,
-          courseInfo: course
-        } 
-      });
-      // setShowSuccessModal(true);
-    } catch (error: any) {
-      console.error('Lỗi đăng ký:', error);
-      alert(error.message || 'Đăng ký lớp học thất bại!');
-      // Nếu lỗi 403 hoặc lỗi token, chuyển về trang đăng nhập
-      if (error.message.includes('không có quyền') || error.message.includes('đăng nhập')) {
-        navigate('/login');
-      }
-      setShowConfirmModal(false);
-    }
-  }
-
   const handleCancelRegistration = () => {
     setShowConfirmModal(false)
   }
 
   const handleSuccessClose = () => {
     setShowSuccessModal(false)
-    navigate('/home-page')
+    navigate('/')
   }
 
   const formatPrice = (price: number) => {
@@ -116,10 +91,6 @@ const CourseDetail = () => {
       currency: 'VND'
     }).format(price);
   };
-
-  if (!course) {
-    return <div>Loading...</div>;
-  }
 
   const formatSchedule = (weekdays: string[]) => {
     return weekdays.map(day => `Thứ ${day === '8' ? 'CN' : day}`).join(', ');
@@ -132,6 +103,14 @@ const CourseDetail = () => {
   const getImageUrl = (imagePath: string) => {
     if (!imagePath) return '';
     return imagePath.replace('public://', 'http://course-management.lndo.site/sites/default/files/');
+  }
+
+  if (isLoading) {
+    return <div>Đang tải...</div>;
+  }
+
+  if (!course) {
+    return <div>Không tìm thấy khóa học</div>;
   }
 
   return (
@@ -163,77 +142,73 @@ const CourseDetail = () => {
           <h2>Mô tả khóa học</h2>
           <div className="description-content"
             dangerouslySetInnerHTML={{ __html: course.field_course_description }}>
-            {/* {course.description.split('\n').map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))} */}
           </div>
         </div>
 
         <div className="course-classes">
-        <h2>Lớp học đang mở</h2>
-        {isLoading ? (
-          <div className="loading">Đang tải...</div>
-        ) : isAlreadyRegistered ? (
-          <div className="registered-message">
-            <p>Bạn đã đăng ký khóa học này. Vui lòng kiểm tra lịch học tại mục "Lịch học của tôi".</p>
-            <button 
-              className="view-schedule-button" 
-              onClick={() => navigate('/student-info')}
-            >
-              Xem lịch học
-            </button>
-          </div>
-        ) : classes.length > 0 ? (
-          <div className="classes-table-container">
-            <table className="classes-table">
-              <thead>
-                <tr>
-                  <th>Mã lớp</th>
-                  <th>Giảng viên</th>
-                  <th>Lịch học</th>
-                  <th>Thời gian</th>
-                  <th>Phòng</th>
-                  <th>Sĩ số</th>
-                  <th>Ngày bắt đầu - kết thúc</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>                
-                {classes.map((classItem) => (
-                  <tr key={classItem.title}>
-                    <td>{classItem.title}</td>
-                    <td>{classItem.field_teacher_fullname}</td>
-                    <td>{formatSchedule(classItem.field_class_weekdays)}</td>
-                    <td>{`${classItem.field_class_start_time} - ${classItem.field_class_end_time}`}</td>
-                    <td>{classItem.field_room}</td>
-                    <td>{`${classItem.field_current_num_of_participant}/${classItem.field_max_num_of_participant}`}</td>
-                    <td>{`${formatDate(classItem.field_class_open_date)} - ${formatDate(classItem.field_class_end_date)}`}</td>
-                    <td>
-                      <button 
-                        className="register-button" 
-                        onClick={() => handleRegisterClick(classItem.title)}
-                      >
-                        Đăng ký
-                      </button>                        
-                    </td>
+          <h2>Lớp học đang mở</h2>
+          {isLoading ? (
+            <div className="loading">Đang tải...</div>
+          ) : (
+            <div className="classes-table-container">
+            {registeredClassForThisCourse && (
+              <div className="registered-classes-info">
+                <p>
+                  <i className="bi bi-info-circle"></i>
+                  Bạn đã đăng ký lớp {registeredClassForThisCourse} của khóa học này
+                </p>
+              </div>
+            )}
+            
+            {classes.length > 0 && !registeredClassForThisCourse ? (
+              <table className="classes-table">
+                <thead>
+                  <tr>
+                    <th>Mã lớp</th>
+                    <th>Giảng viên</th>
+                    <th>Lịch học</th>
+                    <th>Thời gian</th>
+                    <th>Phòng</th>                  
+                    <th>Ngày bắt đầu - kết thúc</th>
+                    <th></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>                
+                  {classes.map((classItem) => (
+                    <tr key={classItem.title}>
+                      <td>{classItem.title}</td>
+                      <td>{classItem.field_teacher_fullname}</td>
+                      <td>{formatSchedule(classItem.field_class_weekdays)}</td>
+                      <td>{`${classItem.field_class_start_time} - ${classItem.field_class_end_time}`}</td>
+                      <td>{classItem.field_room}</td>                    
+                      <td>{`${formatDate(classItem.field_class_open_date)} - ${formatDate(classItem.field_class_end_date)}`}</td>
+                      <td>
+                        <button 
+                          className="register-button" 
+                          onClick={() => handleRegisterClick(classItem.nid)}
+                        >
+                          Đăng ký
+                        </button>                        
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : !registeredClassForThisCourse ? (
+              <div className="no-classes-message">
+                <p>Hiện tại không có lớp học nào được mở cho khóa học này.</p>
+              </div>
+            ) : null}
           </div>
-        ) : (
-          <div className="no-classes-message">
-            <p>Hiện tại không có lớp học nào được mở cho khóa học này.</p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-      </div>
+
       <ConfirmationModal
         isOpen={showConfirmModal}
         title="Đăng ký khóa học"
         message="Bạn có chắc chắn muốn đăng ký khóa học này?"
-        className={selectedClass}
-        onConfirm={handleConFirmRegistation}
+        className={selectedClass}        
         onCancel={handleCancelRegistration}
       />
       <SuccessModal

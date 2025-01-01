@@ -93,3 +93,30 @@
   border-color: #80bdff;
   box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
 }
+
+/* Thêm style cho nút thanh toán */
+.payment-button {
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.payment-button:hover {
+  background-color: #0056b3;
+}
+
+/* Cập nhật style cho status badge */
+.status-badge.pending {
+  background-color: #fff4e5;
+  color: #ff8a00;
+}
+
+.status-badge.confirmed {
+  background-color: #e7f7ee;
+  color: #0d9f4f;
+}

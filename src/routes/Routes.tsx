@@ -15,6 +15,10 @@ import { useAuth } from "../context/AuthContext";
 import PaymentResult from "../pages/paymentConfirmation/PaymentResult";
 import NewsDetail from "../pages/homePage/news/NewsDetail";
 import LandingPage from "../pages/landingPage/LandingPage";
+import RegisterClassForm from "../pages/registerClassForm/RegisterClassForm";
+import VNPayReturn from "../pages/paymentConfirmation/VNPayReturn";
+import ExamSchedulesList from "../pages/studentInfo/examSchedule/ExamScheduleList";
+import ExamPaymentReturn from "../pages/paymentConfirmation/ExamPaymentReturn";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -30,9 +34,9 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     return <>{children}</>;
   }
   
-  if (!isAuthenticated) {
-    return <Navigate to="/" />;
-  }
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/" />;
+  // }
 
   return <>{children}</>;
 };
@@ -40,9 +44,9 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
   
-  if (isAuthenticated) {
-    return <Navigate to="/home-page" />;
-  }
+  // if (isAuthenticated) {
+  //   return <Navigate to="/home-page" />;
+  // }
 
   return <>{children}</>;
 };
@@ -52,7 +56,7 @@ const AppRoutes = () => {
     <Routes>
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
         <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-        <Route path="/home-page" element={<ProtectedRoute><MainLayout><HomePage /></MainLayout></ProtectedRoute>} />
+        <Route path="/" element={<ProtectedRoute><MainLayout><HomePage /></MainLayout></ProtectedRoute>} />
         <Route path="/student-info" element={<ProtectedRoute><MainLayout><StudentInfo /></MainLayout></ProtectedRoute>} />
         <Route path="/register-course" element={<ProtectedRoute><MainLayout><RegisterCourse /></MainLayout></ProtectedRoute>} />
         <Route path="/courses/:id" element={<ProtectedRoute><MainLayout><CourseDetail /></MainLayout></ProtectedRoute>} />
@@ -60,7 +64,11 @@ const AppRoutes = () => {
         <Route path="/all-courses" element={<ProtectedRoute><MainLayout><AllCourses /></MainLayout></ProtectedRoute>} />
         <Route path="/payment-result" element={<ProtectedRoute><MainLayout><PaymentResult /></MainLayout></ProtectedRoute>} />
         <Route path="/news/:tid" element={<ProtectedRoute><MainLayout><NewsDetail /></MainLayout></ProtectedRoute>} />
-        <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
+        <Route path="/home-page" element={<PublicRoute><LandingPage /></PublicRoute>} />
+        <Route path="/register-class/:classId" element={<ProtectedRoute><MainLayout><RegisterClassForm /></MainLayout></ProtectedRoute>} />
+        <Route path="/payment/vnpay-return" element={<ProtectedRoute><MainLayout><VNPayReturn /></MainLayout></ProtectedRoute>} />
+        <Route path="/exam-schedules" element={<ProtectedRoute><MainLayout><ExamSchedulesList /></MainLayout></ProtectedRoute>} />
+        <Route path="/payment/exam-vnpay-return" element={<ProtectedRoute><MainLayout><ExamPaymentReturn /></MainLayout></ProtectedRoute>} />
     </Routes>
   );
 };

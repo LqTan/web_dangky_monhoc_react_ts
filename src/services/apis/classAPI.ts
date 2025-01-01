@@ -3,6 +3,7 @@ import axios from "axios";
 const API_URL = 'http://course-management.lndo.site/api/classes';
 
 export interface Class {
+    nid: string;
     title: string;
     field_class_start_time: string;
     field_class_end_time: string;

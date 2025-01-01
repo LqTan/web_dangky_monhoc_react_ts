@@ -1,0 +1,127 @@
+.exam-schedules {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .exam-header {
+    margin-bottom: 24px;
+  }
+  
+  .exam-header h1 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #1a1a1a;
+  }
+  
+  .exam-header h1 i {
+    font-size: 1.5em;
+    color: #4a90e2;
+  }
+  
+  .exam-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 24px;
+  }
+  
+  .exam-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+  }
+  
+  .exam-card:hover {
+    transform: translateY(-4px);
+  }
+  
+  .exam-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .exam-card-header i {
+    font-size: 1.5em;
+    color: #4a90e2;
+  }
+  
+  .exam-card-header h3 {
+    margin: 0;
+    color: #1a1a1a;
+    font-size: 1.2em;
+  }
+  
+  .exam-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .info-item i {
+    color: #666;
+    width: 20px;
+  }
+  
+  .exam-status {
+    margin-top: 12px;
+    text-align: right;
+  }
+  
+  .status-badge {
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.9em;
+    font-weight: 500;
+  }
+  
+  .status-badge.upcoming {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+  
+  .status-badge.ongoing {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+  
+  .status-badge.completed {
+    background-color: #f5f5f5;
+    color: #616161;
+  }
+
+  .exam-actions {
+    margin-top: 16px;
+    text-align: right;
+  }
+  
+  .register-button {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+  }
+  
+  .register-button:hover {
+    background-color: #357abd;
+  }
+  
+  .register-button i {
+    font-size: 1.1em;
+  }
