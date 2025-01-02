@@ -52,7 +52,7 @@ const PaymentConfirmation = () => {
           return actions.order.create({
             purchase_units: [{
               amount: {
-                value: (totalAmount / 23000).toFixed(2) // Convert VND to USD
+                value: (totalAmount / 23000).toFixed(2) // Đổi tiền Việt VND sang Đô la USD
               }
             }]
           });
