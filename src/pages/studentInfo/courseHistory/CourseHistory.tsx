@@ -17,41 +17,50 @@ interface CourseHistoryItem {
 }
 
 const CourseHistory = () => {
+  // Tạo các biến để lưu trữ dữ liệu:
+  // - courseHistory: danh sách các khóa học đã đăng ký
+  // - loading: trạng thái đang tải dữ liệu
+  // - error: thông báo lỗi nếu có
   const [courseHistory, setCourseHistory] = useState<CourseHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // navigate dùng để chuyển trang.
   const navigate = useNavigate();
 
+  // useEffect sẽ chạy khi trang web được tải lần đầu
   useEffect(() => {
+    // Hàm này dùng để tải dữ liệu lịch sử đăng ký khóa học
     const loadData = async () => {
       try {
+        // Lấy ID của người dùng đã đăng nhập từ bộ nhớ trình duyệt 
         const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
         if (!userId) {
           throw new Error('Không tìm thấy thông tin người dùng');
         }
 
-        // Lấy danh sách đăng ký
-        const registrations = await fetchRegisteredClasses(userId);
-        
-        // Lấy danh sách lớp học
+        // Gọi API để lấy:
+        // 1. Danh sách các lớp đã đăng ký
+        // 2. Thông tin chi tiết của tất cả các lớp học.
+        const registrations = await fetchRegisteredClasses(userId);                
         const classes = await fetchClasses();
         
-        // Xử lý và map dữ liệu
+        // Xử lý từng đăng ký một để lấy thông tin đầy đủ
         const historyItems = await Promise.all(
           registrations.map(async (reg) => {
             // Lấy mã lớp từ title đăng ký
             const classCode = reg.title.split(' - ')[1];
             
-            // Tìm thông tin lớp học
+            // Tìm thông tin lớp học tương ứng
             const classInfo = classes.find(c => c.title === classCode);
             
             if (!classInfo) {
               throw new Error(`Không tìm thấy thông tin lớp ${classCode}`);
             }
 
-            // Lấy thông tin khóa học
+            // Lấy thông tin khóa học từ mã khóa học
             const course = await fetchCourseByCode(classInfo.field_course_code);
 
+            // Tạo đối tượng chứa đầy đủ thông tin cho mỗi đăng ký
             return {
               registrationTitle: reg.title,
               courseId: classInfo.field_course_code,
@@ -65,11 +74,13 @@ const CourseHistory = () => {
           })
         );
 
+        // Lưu danh sách đã xử lý vào biến courseHistory
         setCourseHistory(historyItems);
       } catch (err: any) {
         console.error(err);
         setError('Không thể tải lịch sử đăng ký. Vui lòng thử lại sau.');
       } finally {
+        // Kết thúc trạng thái loading
         setLoading(false);
       }
     };
@@ -77,6 +88,7 @@ const CourseHistory = () => {
     loadData();
   }, [navigate]);
 
+  // Hàm xử lý khi người dùng nhấn nút thanh toán
   const handlePayment = (items: CourseHistoryItem[]) => {
     const unpaidItems = items.filter(item => item.status === 'pending');
     if (unpaidItems.length === 0) {
@@ -84,6 +96,7 @@ const CourseHistory = () => {
       return;
     }
 
+    // Chuyển đến trang thanh toán và gửi theo thông tin các lớp học cần thanh toán
     navigate('/payment-confirmation', {
       state: {
         registrations: unpaidItems.map(item => ({
