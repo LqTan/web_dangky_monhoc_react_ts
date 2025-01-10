@@ -10,6 +10,7 @@ import Certificates from '../certificates/Certificates';
 import TuitionFees from '../tuitionFees/TuitionFees';
 import { UserProfile, getUserProfile, updateUserProfile, uploadAvatar } from '../../../services/apis/userProfileAPI';
 import { useNavigate } from 'react-router-dom';
+import ChangePassword from '../changePassword/ChangePassword';
 
 const StudentInfo = () => {
   const [selectedComponent, setSelectedComponent] = useState('Thông tin cá nhân');
@@ -266,6 +267,8 @@ const StudentInfo = () => {
     switch (selectedComponent) {
       case 'Thông tin cá nhân':
         return renderPersonalInfo();
+      case 'Đổi mật khẩu':
+        return <ChangePassword />;
       case 'Lịch sử đăng ký':
         return <CourseHistory />;
       // case 'Thông tin môn học':

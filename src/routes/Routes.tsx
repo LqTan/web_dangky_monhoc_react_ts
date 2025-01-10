@@ -19,6 +19,7 @@ import RegisterClassForm from "../pages/registerClassForm/RegisterClassForm";
 import VNPayReturn from "../pages/paymentConfirmation/VNPayReturn";
 import ExamSchedulesList from "../pages/studentInfo/examSchedule/ExamScheduleList";
 import ExamPaymentReturn from "../pages/paymentConfirmation/ExamPaymentReturn";
+import SearchCourses from "../pages/searchCourses/SearchCourses";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -69,6 +70,7 @@ const AppRoutes = () => {
         <Route path="/payment/vnpay-return" element={<ProtectedRoute><MainLayout><VNPayReturn /></MainLayout></ProtectedRoute>} />
         <Route path="/exam-schedules" element={<ProtectedRoute><MainLayout><ExamSchedulesList /></MainLayout></ProtectedRoute>} />
         <Route path="/payment/exam-vnpay-return" element={<ProtectedRoute><MainLayout><ExamPaymentReturn /></MainLayout></ProtectedRoute>} />
+        <Route path="/search-courses" element={<ProtectedRoute><MainLayout><SearchCourses /></MainLayout></ProtectedRoute>} />
     </Routes>
   );
 };

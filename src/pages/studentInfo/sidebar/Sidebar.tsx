@@ -13,6 +13,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelect }) => {
 
   const menuItems = [
     { icon: 'bi bi-person', label: 'Thông tin cá nhân' },
+    { icon: 'bi bi-key', label: 'Đổi mật khẩu' },
     { icon: 'bi bi-clock-history', label: 'Lịch sử đăng ký' },
     // { icon: 'bi bi-book', label: 'Thông tin môn học' },
     { icon: 'bi bi-calendar', label: 'Lịch học' },

@@ -36,8 +36,8 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h2 className="login-title">Welcome Back</h2>
-        <p className="login-subtitle">Sign in to your account</p>
+        <h2 className="login-title">Chào mừng trở lại</h2>
+        <p className="login-subtitle">Đăng nhập tài khoản của bạn</p>
         
         {error && (
           <div className="alert alert-danger text-center" role="alert">
@@ -47,7 +47,7 @@ const Login = () => {
         
         <form onSubmit={handleSubmit}>
           <div className="login-form-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="username">Tên tài khoản</label>
             <div className="input-icon-wrapper">
               <i className="fas fa-user input-icon"></i>
               <input
@@ -56,14 +56,14 @@ const Login = () => {
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your username"
+                placeholder="Nhập tên tài khoản"
                 required
               />
             </div>
           </div>
   
           <div className="login-form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">Mật khẩu</label>
             <div className="input-icon-wrapper">
               <i className="fas fa-lock input-icon"></i>
               <input
@@ -72,7 +72,7 @@ const Login = () => {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
+                placeholder="Nhập mật khẩu"
                 required
               />
               <i 
@@ -83,15 +83,15 @@ const Login = () => {
           </div>
   
           <button type="submit" className="login-button">
-            <span>Sign In</span>
+            <span>Đăng nhập</span>
             <i className="fas fa-sign-in-alt ms-2"></i>
           </button>
         </form>
   
         <p className="signup-text">
-          Don't have an account?{' '}
+          Bạn chưa có tài khoản?{' '}
           <a href="/register" className="signup-link">
-            Sign up
+            Đăng ký ngay
           </a>
         </p>
       </div>

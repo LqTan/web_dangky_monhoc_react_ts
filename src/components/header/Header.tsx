@@ -39,7 +39,7 @@ const Header = () => {
             </Link>
           ) : (
             // Nếu chưa đăng nhập, chỉ hiển thị icon và link tới trang đăng ký
-            <Link to="/register" className="nav-link">
+            <Link to="/login" className="nav-link">
               <i className="fas fa-user"></i>
             </Link>
           )}

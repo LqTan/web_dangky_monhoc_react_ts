@@ -1,0 +1,147 @@
+.search_course-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+  
+  .search_course-header {
+    margin-bottom: 2rem;
+  }
+  
+  .search_course-header h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+  }
+  
+  .search_course-filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .search_course-input {
+    flex: 1;
+    position: relative;
+  }
+  
+  .search_course-input i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+  }
+  
+  .search_course-input input {
+    width: 100%;
+    padding: 0.8rem 1rem 0.8rem 2.5rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+  }
+  
+  .search_course-category-select {
+    min-width: 200px;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: white;
+  }
+  
+  .search_course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+  
+  .search_course-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .search_course-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .search_course-card:focus {
+    outline: 2px solid #4B0082;
+    outline-offset: 2px;
+  }
+  
+  .search_course-image {
+    height: 200px;
+    overflow: hidden;
+  }
+  
+  .search_course-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .search_course-content {
+    padding: 1.5rem;
+  }
+  
+  .search_course-content h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+  
+  .search_course-code {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .search_course-category {
+    color: #4B0082;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .search_course-fee {
+    font-weight: 600;
+    color: #4B0082;
+  }
+  
+  .search_course-loading {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+  }
+  
+  .search_course-loading i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .search_course-no-results {
+    text-align: center;
+    padding: 3rem;
+    grid-column: 1 / -1;
+    color: #666;
+  }
+  
+  .search_course-no-results i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  
+  @media (max-width: 768px) {
+    .search_course-filters {
+      flex-direction: column;
+    }
+    
+    .search_course-category-select {
+      width: 100%;
+    }
+  }
